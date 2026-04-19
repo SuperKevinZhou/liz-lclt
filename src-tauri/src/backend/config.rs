@@ -10,6 +10,8 @@ use crate::backend::models::{
     ModelsConfig, ResourceFile, TranslationConfigs, WorkspacePaths,
 };
 
+const ORIGINAL_LCLT_ROOT: &str = "..\\LimbusCompanyLLMTranslator";
+
 fn read_json_file<T: DeserializeOwned>(path: &Path) -> Result<T, UserFacingError> {
     let content =
         fs::read_to_string(path).map_err(|error| UserFacingError::io("Read", path, &error))?;
@@ -84,6 +86,26 @@ fn list_files_in_dir(path: &Path, extension: &str) -> Result<Vec<ResourceFile>, 
     Ok(items)
 }
 
+fn merge_resource_files(primary: Vec<ResourceFile>, fallback: Vec<ResourceFile>) -> Vec<ResourceFile> {
+    let mut merged = primary;
+    for item in fallback {
+        if !merged.iter().any(|existing| existing.path == item.path) {
+            merged.push(item);
+        }
+    }
+    merged.sort_by(|left, right| left.path.cmp(&right.path));
+    merged
+}
+
+fn original_lclt_root() -> Option<PathBuf> {
+    let root = PathBuf::from(ORIGINAL_LCLT_ROOT);
+    if root.exists() {
+        Some(root)
+    } else {
+        None
+    }
+}
+
 pub fn default_workspace_paths(root: PathBuf) -> WorkspacePaths {
     WorkspacePaths::from_root(root, &AppConfig::default())
 }
@@ -108,10 +130,15 @@ pub fn load_translation_configs(
     paths: &WorkspacePaths,
 ) -> Result<TranslationConfigs, UserFacingError> {
     if paths.translation_configs.exists() {
-        read_json_file(&paths.translation_configs)
+        let loaded: TranslationConfigs = read_json_file(&paths.translation_configs)?;
+        if !loaded.translation_strategies.is_empty() {
+            return Ok(loaded);
+        }
     } else {
-        Ok(TranslationConfigs::default())
+        return load_original_translation_configs().or(Ok(TranslationConfigs::default()));
     }
+
+    load_original_translation_configs().or(Ok(TranslationConfigs::default()))
 }
 
 pub fn load_blacklist(paths: &WorkspacePaths) -> Result<BlacklistConfig, UserFacingError> {
@@ -181,8 +208,23 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
         }
     };
 
+    let fallback_paths = original_lclt_root().map(default_workspace_paths);
+
     let prompt_files = match list_files_in_dir(&paths.prompts_dir, "txt") {
-        Ok(files) => files,
+        Ok(files) => {
+            let fallback = fallback_paths
+                .as_ref()
+                .map(|paths| list_files_in_dir(&paths.prompts_dir, "txt"))
+                .transpose();
+            match fallback {
+                Ok(Some(fallback_files)) => merge_resource_files(files, fallback_files),
+                Ok(None) => files,
+                Err(error) => {
+                    problems.push(error);
+                    files
+                }
+            }
+        }
         Err(error) => {
             problems.push(error);
             vec![]
@@ -190,7 +232,20 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
     };
 
     let terminology_files = match list_files_in_dir(&paths.terminology_dir, "json") {
-        Ok(files) => files,
+        Ok(files) => {
+            let fallback = fallback_paths
+                .as_ref()
+                .map(|paths| list_files_in_dir(&paths.terminology_dir, "json"))
+                .transpose();
+            match fallback {
+                Ok(Some(fallback_files)) => merge_resource_files(files, fallback_files),
+                Ok(None) => files,
+                Err(error) => {
+                    problems.push(error);
+                    files
+                }
+            }
+        }
         Err(error) => {
             problems.push(error);
             vec![]
@@ -329,4 +384,15 @@ fn steam_library_roots(steam_root: &Path) -> Vec<PathBuf> {
     }
 
     libraries
+}
+
+fn load_original_translation_configs() -> Result<TranslationConfigs, UserFacingError> {
+    let Some(root) = original_lclt_root() else {
+        return Ok(TranslationConfigs::default());
+    };
+    let path = root.join("translation_configs.json");
+    if !path.exists() {
+        return Ok(TranslationConfigs::default());
+    }
+    read_json_file(&path)
 }
