@@ -100,13 +100,32 @@ fn merge_resource_files(
     merged
 }
 
-fn original_lclt_root() -> Option<PathBuf> {
+pub fn original_lclt_root() -> Option<PathBuf> {
     let root = PathBuf::from(ORIGINAL_LCLT_ROOT);
     if root.exists() {
         Some(root)
     } else {
         None
     }
+}
+
+pub fn resolve_existing_resource_path(
+    workspace_root: &Path,
+    relative_path: &str,
+) -> Option<PathBuf> {
+    let primary = workspace_root.join(relative_path);
+    if primary.exists() {
+        return Some(primary);
+    }
+
+    let fallback_root = original_lclt_root()?;
+    let fallback = fallback_root.join(relative_path);
+    fallback.exists().then_some(fallback)
+}
+
+pub fn resolve_resource_path_for_write(workspace_root: &Path, relative_path: &str) -> PathBuf {
+    resolve_existing_resource_path(workspace_root, relative_path)
+        .unwrap_or_else(|| workspace_root.join(relative_path))
 }
 
 pub fn default_workspace_paths(root: PathBuf) -> WorkspacePaths {

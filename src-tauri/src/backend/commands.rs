@@ -6,7 +6,8 @@ use tauri::Manager;
 use tokio::sync::Mutex;
 
 use crate::backend::config::{
-    default_workspace_paths, load_payload, save_app_config, save_blacklist as persist_blacklist,
+    default_workspace_paths, load_payload, resolve_existing_resource_path,
+    resolve_resource_path_for_write, save_app_config, save_blacklist as persist_blacklist,
     save_models as persist_models, save_translation_configs as persist_translation_configs,
 };
 use crate::backend::error::UserFacingError;
@@ -86,7 +87,14 @@ pub async fn load_text_resource(
     let guard = state.lock().await;
     let workspace_root = resolve_workspace_root(None, &guard, None)?;
     let relative_path = payload.path.clone();
-    let path = workspace_root.join(&relative_path);
+    let path =
+        resolve_existing_resource_path(&workspace_root, &relative_path).ok_or_else(|| {
+            UserFacingError::new(
+                "Missing Resource",
+                format!("Could not locate '{}'.", relative_path),
+                None,
+            )
+        })?;
     let content = read_text_file(&path)?;
     Ok(TextResourcePayload {
         path: relative_path,
@@ -155,7 +163,7 @@ pub async fn save_text_resource(
         let guard = state.lock().await;
         resolve_workspace_root(None, &guard, None)?
     };
-    let path = workspace_root.join(payload.path);
+    let path = resolve_resource_path_for_write(&workspace_root, &payload.path);
     write_text_file(&path, &payload.content)
 }
 
@@ -168,7 +176,7 @@ pub async fn save_terminology(
         let guard = state.lock().await;
         resolve_workspace_root(None, &guard, None)?
     };
-    let path = workspace_root.join(payload.path);
+    let path = resolve_resource_path_for_write(&workspace_root, &payload.path);
     write_terminology(&path, &payload.payload)
 }
 

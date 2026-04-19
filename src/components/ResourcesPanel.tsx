@@ -22,6 +22,42 @@ function defaultTerminology(): TerminologyDictionary {
   return { terminology: {} };
 }
 
+function normalizeTerminology(payload: unknown): {
+  data: TerminologyDictionary;
+  error: UserFacingError | null;
+} {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "terminology" in payload &&
+    payload.terminology &&
+    typeof payload.terminology === "object" &&
+    !Array.isArray(payload.terminology)
+  ) {
+    const terminology = Object.fromEntries(
+      Object.entries(payload.terminology as Record<string, unknown>).map(
+        ([key, value]) => [key, String(value ?? "")],
+      ),
+    );
+    return {
+      data: {
+        terminology,
+      },
+      error: null,
+    };
+  }
+
+  return {
+    data: defaultTerminology(),
+    error: {
+      title: t("invalidResourceTitle"),
+      message: t("invalidTerminologyJson"),
+      details:
+        "Expected an object shaped like { terminology: { key: value } }.",
+    },
+  };
+}
+
 function renameTerminologyKey(
   source: Record<string, string>,
   index: number,
@@ -111,8 +147,14 @@ export function ResourcesPanel({
       .loadTextResource(selectedTerminology)
       .then((payload) => {
         try {
-          const parsed = JSON.parse(payload.content) as TerminologyDictionary;
-          setTerminology(parsed);
+          const parsed = JSON.parse(payload.content) as unknown;
+          const normalized = normalizeTerminology(parsed);
+          setTerminology(normalized.data);
+          if (normalized.error) {
+            setTerminologyStatus(t("invalidTerminologyJson"));
+            setError(normalized.error);
+            return;
+          }
           setTerminologyStatus(null);
           setError(null);
         } catch (error) {
