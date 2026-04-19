@@ -51,43 +51,85 @@ export function ResourcesPanel({
   const [promptText, setPromptText] = useState("");
   const [terminology, setTerminology] =
     useState<TerminologyDictionary>(defaultTerminology);
+  const [promptStatus, setPromptStatus] = useState<string | null>(null);
+  const [terminologyStatus, setTerminologyStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedPrompt && promptFiles[0]) {
       setSelectedPrompt(promptFiles[0].path);
+    } else if (
+      selectedPrompt &&
+      !promptFiles.some((file) => file.path === selectedPrompt)
+    ) {
+      setSelectedPrompt(promptFiles[0]?.path ?? "");
     }
   }, [promptFiles, selectedPrompt]);
 
   useEffect(() => {
     if (!selectedTerminology && terminologyFiles[0]) {
       setSelectedTerminology(terminologyFiles[0].path);
+    } else if (
+      selectedTerminology &&
+      !terminologyFiles.some((file) => file.path === selectedTerminology)
+    ) {
+      setSelectedTerminology(terminologyFiles[0]?.path ?? "");
     }
   }, [terminologyFiles, selectedTerminology]);
 
   useEffect(() => {
     if (!selectedPrompt) {
+      setPromptText("");
+      setPromptStatus(t("noPromptFiles"));
       return;
     }
+    setPromptStatus(t("loadingResource"));
     void commands
       .loadTextResource(selectedPrompt)
       .then((payload) => {
         setPromptText(payload.content);
+        setPromptStatus(null);
         setError(null);
       })
-      .catch((error) => setError(error as UserFacingError));
+      .catch((error) => {
+        const nextError = error as UserFacingError;
+        setPromptText("");
+        setPromptStatus(nextError.message);
+        setError(nextError);
+      });
   }, [selectedPrompt, setError]);
 
   useEffect(() => {
     if (!selectedTerminology) {
+      setTerminology(defaultTerminology());
+      setTerminologyStatus(t("noTerminologyFiles"));
       return;
     }
+    setTerminologyStatus(t("loadingResource"));
     void commands
       .loadTextResource(selectedTerminology)
       .then((payload) => {
-        setTerminology(JSON.parse(payload.content) as TerminologyDictionary);
-        setError(null);
+        try {
+          const parsed = JSON.parse(payload.content) as TerminologyDictionary;
+          setTerminology(parsed);
+          setTerminologyStatus(null);
+          setError(null);
+        } catch (error) {
+          setTerminology(defaultTerminology());
+          setTerminologyStatus(t("invalidTerminologyJson"));
+          setError({
+            title: t("invalidResourceTitle"),
+            message: t("invalidTerminologyJson"),
+            details:
+              error instanceof Error ? error.message : String(error),
+          });
+        }
       })
-      .catch((error) => setError(error as UserFacingError));
+      .catch((error) => {
+        const nextError = error as UserFacingError;
+        setTerminology(defaultTerminology());
+        setTerminologyStatus(nextError.message);
+        setError(nextError);
+      });
   }, [selectedTerminology, setError]);
 
   return (
@@ -101,6 +143,7 @@ export function ResourcesPanel({
             </div>
             <button
               className="button"
+              disabled={!selectedPrompt}
               onClick={() =>
                 commands
                   .saveTextResource({
@@ -115,6 +158,7 @@ export function ResourcesPanel({
             </button>
           </div>
           <select
+            disabled={!promptFiles.length}
             value={selectedPrompt}
             onChange={(event) => setSelectedPrompt(event.target.value)}
           >
@@ -124,11 +168,18 @@ export function ResourcesPanel({
               </option>
             ))}
           </select>
-          <textarea
-            className="editor-textarea"
-            value={promptText}
-            onChange={(event) => setPromptText(event.target.value)}
-          />
+          {promptStatus ? (
+            <div className="resource-empty-state">
+              <strong>{promptStatus}</strong>
+              <p>{t("resourcePanelHint")}</p>
+            </div>
+          ) : (
+            <textarea
+              className="editor-textarea"
+              value={promptText}
+              onChange={(event) => setPromptText(event.target.value)}
+            />
+          )}
         </section>
 
         <section className="panel">
@@ -139,6 +190,7 @@ export function ResourcesPanel({
             </div>
             <button
               className="button"
+              disabled={!selectedTerminology}
               onClick={() =>
                 commands
                   .saveTerminology(selectedTerminology, terminology)
@@ -150,6 +202,7 @@ export function ResourcesPanel({
             </button>
           </div>
           <select
+            disabled={!terminologyFiles.length}
             value={selectedTerminology}
             onChange={(event) => setSelectedTerminology(event.target.value)}
           >
@@ -159,66 +212,73 @@ export function ResourcesPanel({
               </option>
             ))}
           </select>
-          <div className="dictionary-list">
-            {Object.entries(terminology.terminology).map(
-              ([key, value], index) => (
-                <div className="dictionary-row" key={`term-row-${index}`}>
-                <input
-                  value={key}
-                  onChange={(event) => {
-                    setTerminology({
-                      terminology: renameTerminologyKey(
-                        terminology.terminology,
-                        index,
-                        event.target.value,
-                      ),
-                    });
-                  }}
-                />
-                <input
-                  value={value}
-                  onChange={(event) =>
-                    setTerminology({
-                      terminology: {
-                        ...terminology.terminology,
-                        [key]: event.target.value,
-                      },
-                    })
-                  }
-                />
-                <button
-                  className="button button--ghost"
-                  onClick={() => {
-                    setTerminology({
-                      terminology: Object.fromEntries(
-                        Object.entries(terminology.terminology).filter(
-                          (_, entryIndex) => entryIndex !== index,
-                        ),
-                      ),
-                    });
-                  }}
-                  type="button"
-                >
-                  {t("remove")}
-                </button>
-              </div>
-              ),
-            )}
-            <button
-              className="button button--ghost"
-              onClick={() =>
-                setTerminology({
-                  terminology: {
-                    ...terminology.terminology,
-                    "new-term": "",
-                  },
-                })
-              }
-              type="button"
-            >
-              {t("addTerm")}
-            </button>
-          </div>
+          {terminologyStatus ? (
+            <div className="resource-empty-state">
+              <strong>{terminologyStatus}</strong>
+              <p>{t("resourcePanelHint")}</p>
+            </div>
+          ) : (
+            <div className="dictionary-list">
+              {Object.entries(terminology.terminology).map(
+                ([key, value], index) => (
+                  <div className="dictionary-row" key={`term-row-${index}`}>
+                    <input
+                      value={key}
+                      onChange={(event) => {
+                        setTerminology({
+                          terminology: renameTerminologyKey(
+                            terminology.terminology,
+                            index,
+                            event.target.value,
+                          ),
+                        });
+                      }}
+                    />
+                    <input
+                      value={value}
+                      onChange={(event) =>
+                        setTerminology({
+                          terminology: {
+                            ...terminology.terminology,
+                            [key]: event.target.value,
+                          },
+                        })
+                      }
+                    />
+                    <button
+                      className="button button--ghost"
+                      onClick={() => {
+                        setTerminology({
+                          terminology: Object.fromEntries(
+                            Object.entries(terminology.terminology).filter(
+                              (_, entryIndex) => entryIndex !== index,
+                            ),
+                          ),
+                        });
+                      }}
+                      type="button"
+                    >
+                      {t("remove")}
+                    </button>
+                  </div>
+                ),
+              )}
+              <button
+                className="button button--ghost"
+                onClick={() =>
+                  setTerminology({
+                    terminology: {
+                      ...terminology.terminology,
+                      "new-term": "",
+                    },
+                  })
+                }
+                type="button"
+              >
+                {t("addTerm")}
+              </button>
+            </div>
+          )}
         </section>
       </div>
 
