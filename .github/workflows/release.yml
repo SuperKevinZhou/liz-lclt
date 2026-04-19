@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tagName:
-        description: "Release tag, for example v0.2.1"
+        description: "Release tag, for example v0.2.3"
         required: true
         type: string
 
@@ -54,19 +54,48 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Resolve release version
+        id: release_version
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.tagName || github.ref_name }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: ${RELEASE_TAG}" >&2
+            exit 1
+          fi
+          {
+            echo "tag=${RELEASE_TAG}"
+            echo "version=${version}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Sync app version from release tag
+        run: node scripts/sync-version.mjs "${{ steps.release_version.outputs.tag }}"
+
       - name: Build frontend
         run: npm run build
 
       - name: Generate release notes
         id: release_notes
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.inputs.tagName || github.ref_name }}
         run: |
-          body="$(gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
-            -f tag_name="${RELEASE_TAG}" \
-            --jq '.body')"
+          release_tag="${{ steps.release_version.outputs.tag }}"
+          target_sha="$(git rev-list -n 1 "${release_tag}")"
+          previous_tag="$(git tag --sort=-creatordate --merged "${target_sha}" | grep -v "^${release_tag}$" | head -n 1 || true)"
+
+          if [[ -n "${previous_tag}" ]]; then
+            range="${previous_tag}..${release_tag}"
+          else
+            range="${release_tag}"
+          fi
+
+          body="$(git log --reverse --format='- %s (%h)' "${range}")"
+
+          if [[ -z "${body}" ]]; then
+            body="- Release ${release_tag}"
+          fi
+
           {
             echo "body<<EOF"
             echo "${body}"
@@ -78,8 +107,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.event.inputs.tagName || github.ref_name }}
-          releaseName: "liz-lclt ${{ github.event.inputs.tagName || github.ref_name }}"
+          tagName: ${{ steps.release_version.outputs.tag }}
+          releaseName: "liz-lclt ${{ steps.release_version.outputs.tag }}"
           releaseBody: ${{ steps.release_notes.outputs.body }}
           releaseDraft: false
           prerelease: false
