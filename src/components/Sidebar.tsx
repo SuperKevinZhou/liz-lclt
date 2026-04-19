@@ -41,6 +41,11 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
         </div>
       </div>
 
+      <div className="sidebar__section">
+        <span>{t("workspace")}</span>
+        <strong>{t("sidebarFocus")}</strong>
+      </div>
+
       <nav className="nav">
         {navItems.map((item) => (
           <button

@@ -35,6 +35,7 @@ const zhCN = {
   navResources: "资源",
   navResourcesHint: "Prompt、术语库和黑名单",
   productHint: "桌面翻译工作台",
+  sidebarFocus: "围绕配置与任务推进翻译",
   workspace: "工作区",
   noWorkspace: "尚未选择工作区",
   overviewDescription:
