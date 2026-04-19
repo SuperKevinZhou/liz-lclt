@@ -15,9 +15,7 @@ import "./App.css";
 
 function App() {
   const [activeNav, setActiveNav] = useState<NavKey>("overview");
-  const [workspaceInput, setWorkspaceInput] = useState(
-    "D:/zzh/Code/LCLT-neo/LimbusCompanyLLMTranslator",
-  );
+  const [workspaceInput, setWorkspaceInput] = useState("");
   const { state, isLoading, actionMessage, activeError, actions } =
     useAppState();
 

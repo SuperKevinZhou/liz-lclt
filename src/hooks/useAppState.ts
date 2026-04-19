@@ -100,7 +100,7 @@ export function useAppState() {
           }
           const payload = await commands.loadAppState(workspaceRoot);
           setState(payload);
-          setActionMessage("Workspace loaded.");
+          setActionMessage("工作区已加载。");
         } catch (error) {
           setActiveError(error as UserFacingError);
         } finally {
@@ -122,7 +122,7 @@ export function useAppState() {
       async saveConfig() {
         try {
           await commands.saveConfig(state.currentConfig);
-          setActionMessage("Saved config.json");
+          setActionMessage("已保存 config.json");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
@@ -130,7 +130,7 @@ export function useAppState() {
       async saveModels() {
         try {
           await commands.saveModels(state.modelsConfig);
-          setActionMessage("Saved models.json");
+          setActionMessage("已保存 models.json");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
@@ -138,7 +138,7 @@ export function useAppState() {
       async saveTranslationConfigs() {
         try {
           await commands.saveTranslationConfigs(state.translationConfigs);
-          setActionMessage("Saved translation_configs.json");
+          setActionMessage("已保存 translation_configs.json");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
@@ -146,7 +146,7 @@ export function useAppState() {
       async saveBlacklist() {
         try {
           await commands.saveBlacklist(state.blacklistConfig);
-          setActionMessage("Saved BlackList.json");
+          setActionMessage("已保存 BlackList.json");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
@@ -156,7 +156,7 @@ export function useAppState() {
           const task = await commands.startTranslation(dryRun);
           setState((current) => ({ ...current, currentTask: task }));
           setActionMessage(
-            dryRun ? "Dry run started." : "Translation task started.",
+            dryRun ? "试运行已启动。" : "翻译任务已启动。",
           );
         } catch (error) {
           setActiveError(error as UserFacingError);
@@ -170,7 +170,7 @@ export function useAppState() {
         try {
           const nextTask = await commands.cancelTranslation(task.taskId);
           setState((current) => ({ ...current, currentTask: nextTask }));
-          setActionMessage("Cancellation requested.");
+          setActionMessage("已请求取消任务。");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
