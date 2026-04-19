@@ -155,9 +155,7 @@ export function useAppState() {
         try {
           const task = await commands.startTranslation(dryRun);
           setState((current) => ({ ...current, currentTask: task }));
-          setActionMessage(
-            dryRun ? "试运行已启动。" : "翻译任务已启动。",
-          );
+          setActionMessage(dryRun ? "试运行已启动。" : "翻译任务已启动。");
         } catch (error) {
           setActiveError(error as UserFacingError);
         }
