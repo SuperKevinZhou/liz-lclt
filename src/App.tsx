@@ -21,8 +21,7 @@ function App() {
     activeError,
     startupNotice,
     actions,
-  } =
-    useAppState();
+  } = useAppState();
 
   const promptOptions = useMemo(
     () => state.promptFiles.map((file) => file.path),

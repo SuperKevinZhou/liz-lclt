@@ -1,6 +1,7 @@
 const zhCN = {
   appSubtitle: "Rust 核心、Tauri 外壳、兼容优先的翻译工作台",
-  shellDescription: "直接围绕翻译配置、资源和任务状态工作，而不是维护一个复杂 dashboard。",
+  shellDescription:
+    "直接围绕翻译配置、资源和任务状态工作，而不是维护一个复杂 dashboard。",
   workspacePlaceholder: "工作区目录",
   load: "加载",
   pickFolder: "选择文件夹",

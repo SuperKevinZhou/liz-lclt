@@ -86,7 +86,10 @@ fn list_files_in_dir(path: &Path, extension: &str) -> Result<Vec<ResourceFile>, 
     Ok(items)
 }
 
-fn merge_resource_files(primary: Vec<ResourceFile>, fallback: Vec<ResourceFile>) -> Vec<ResourceFile> {
+fn merge_resource_files(
+    primary: Vec<ResourceFile>,
+    fallback: Vec<ResourceFile>,
+) -> Vec<ResourceFile> {
     let mut merged = primary;
     for item in fallback {
         if !merged.iter().any(|existing| existing.path == item.path) {

@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use tauri::Manager;
 use tauri::path::BaseDirectory;
+use tauri::Manager;
 use tokio::sync::Mutex;
 
 use crate::backend::config::{

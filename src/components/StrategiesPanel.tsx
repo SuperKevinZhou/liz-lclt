@@ -177,7 +177,10 @@ export function StrategiesPanel({
 
               <div className="pattern-list">
                 {strategy.filePatterns.map((pattern, patternIndex) => (
-                  <div className="pattern-row" key={`pattern-row-${patternIndex}`}>
+                  <div
+                    className="pattern-row"
+                    key={`pattern-row-${patternIndex}`}
+                  >
                     <input
                       value={pattern.pattern}
                       onChange={(event) => {

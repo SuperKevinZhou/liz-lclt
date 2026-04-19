@@ -15,9 +15,9 @@ export function ModelsPanel({
   const entries = Object.entries(modelsConfig.models);
 
   function updateEntries(
-    producer: (current: Array<[string, ModelsConfig["models"][string]]>) => Array<
-      [string, ModelsConfig["models"][string]]
-    >,
+    producer: (
+      current: Array<[string, ModelsConfig["models"][string]]>,
+    ) => Array<[string, ModelsConfig["models"][string]]>,
   ) {
     onChange({
       models: Object.fromEntries(producer(entries)),

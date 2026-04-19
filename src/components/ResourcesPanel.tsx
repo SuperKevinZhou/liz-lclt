@@ -52,7 +52,9 @@ export function ResourcesPanel({
   const [terminology, setTerminology] =
     useState<TerminologyDictionary>(defaultTerminology);
   const [promptStatus, setPromptStatus] = useState<string | null>(null);
-  const [terminologyStatus, setTerminologyStatus] = useState<string | null>(null);
+  const [terminologyStatus, setTerminologyStatus] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!selectedPrompt && promptFiles[0]) {
@@ -119,8 +121,7 @@ export function ResourcesPanel({
           setError({
             title: t("invalidResourceTitle"),
             message: t("invalidTerminologyJson"),
-            details:
-              error instanceof Error ? error.message : String(error),
+            details: error instanceof Error ? error.message : String(error),
           });
         }
       })

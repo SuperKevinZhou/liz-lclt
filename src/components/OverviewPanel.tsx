@@ -71,7 +71,9 @@ export function OverviewPanel({
         </article>
         <article className="overview-strip__item">
           <span>{t("strategies")}</span>
-          <strong>{state.translationConfigs.translationStrategies.length}</strong>
+          <strong>
+            {state.translationConfigs.translationStrategies.length}
+          </strong>
         </article>
         <article className="overview-strip__item">
           <span>{t("modelSlots")}</span>
@@ -109,7 +111,8 @@ export function OverviewPanel({
             <div>
               <span>{t("completedBatches")}</span>
               <strong>
-                {progress?.completedBatches ?? 0} / {progress?.totalBatches ?? 0}
+                {progress?.completedBatches ?? 0} /{" "}
+                {progress?.totalBatches ?? 0}
               </strong>
             </div>
             <div>
@@ -145,13 +148,15 @@ export function OverviewPanel({
             <div className="readiness-item">
               <span>{t("originLanguage")}</span>
               <strong>
-                {state.currentConfig.translationSettings.originLanguage || "n/a"}
+                {state.currentConfig.translationSettings.originLanguage ||
+                  "n/a"}
               </strong>
             </div>
             <div className="readiness-item">
               <span>{t("targetDirectory")}</span>
               <strong>
-                {state.currentConfig.translationSettings.targetDirection || "n/a"}
+                {state.currentConfig.translationSettings.targetDirection ||
+                  "n/a"}
               </strong>
             </div>
             <div className="readiness-item">
