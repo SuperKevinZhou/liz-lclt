@@ -6,8 +6,8 @@ use serde::Serialize;
 
 use crate::backend::error::UserFacingError;
 use crate::backend::models::{
-    AppConfig, AppStatePayload, BlacklistConfig, DetectedGamePaths, ModelsConfig, ResourceFile,
-    TranslationConfigs, WorkspacePaths,
+    AppConfig, AppStatePayload, AutoDetectedNotice, BlacklistConfig, DetectedGamePaths,
+    ModelsConfig, ResourceFile, TranslationConfigs, WorkspacePaths,
 };
 
 fn read_json_file<T: DeserializeOwned>(path: &Path) -> Result<T, UserFacingError> {
@@ -154,7 +154,8 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
     };
     let paths = WorkspacePaths::from_root(root.clone(), &current_config);
     let auto_detected_game = detect_limbus_paths();
-    let current_config = hydrate_config_paths(current_config, auto_detected_game.as_ref());
+    let (current_config, auto_detected_notice) =
+        hydrate_config_paths(current_config, auto_detected_game.as_ref());
 
     let models_config = match load_models(&paths) {
         Ok(config) => config,
@@ -205,16 +206,21 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
         prompt_files,
         terminology_files,
         auto_detected_game,
+        auto_detected_notice,
         problems,
         current_task: None,
     }
 }
 
-fn hydrate_config_paths(mut config: AppConfig, detected: Option<&DetectedGamePaths>) -> AppConfig {
+fn hydrate_config_paths(
+    mut config: AppConfig,
+    detected: Option<&DetectedGamePaths>,
+) -> (AppConfig, Option<AutoDetectedNotice>) {
     let Some(detected) = detected else {
-        return config;
+        return (config, None);
     };
 
+    let mut input_applied = false;
     if config.file_paths.input_direction.trim().is_empty()
         || config
             .file_paths
@@ -222,7 +228,9 @@ fn hydrate_config_paths(mut config: AppConfig, detected: Option<&DetectedGamePat
             .contains("<Puts your Game Directory Here>")
     {
         config.file_paths.input_direction = detected.localize_root.clone();
+        input_applied = true;
     }
+    let mut output_applied = false;
     if config.file_paths.output_direction.trim().is_empty()
         || config
             .file_paths
@@ -230,9 +238,20 @@ fn hydrate_config_paths(mut config: AppConfig, detected: Option<&DetectedGamePat
             .contains("<Puts your Game Directory Here>")
     {
         config.file_paths.output_direction = detected.lang_root.clone();
+        output_applied = true;
     }
 
-    config
+    let notice = if input_applied || output_applied {
+        Some(AutoDetectedNotice {
+            game_root: detected.game_root.clone(),
+            input_applied,
+            output_applied,
+        })
+    } else {
+        None
+    };
+
+    (config, notice)
 }
 
 fn detect_limbus_paths() -> Option<DetectedGamePaths> {

@@ -200,6 +200,13 @@ button {
   padding: 14px 18px;
 }
 
+.alert__row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .alert strong {
   display: block;
   margin-bottom: 6px;
@@ -215,6 +222,10 @@ button {
 
 .alert--info {
   border-color: rgba(112, 153, 189, 0.28);
+}
+
+.alert--success {
+  border-color: rgba(109, 191, 138, 0.34);
 }
 
 .panel-stack {

@@ -90,6 +90,12 @@ export interface DetectedGamePaths {
   langRoot: string;
 }
 
+export interface AutoDetectedNotice {
+  gameRoot: string;
+  inputApplied: boolean;
+  outputApplied: boolean;
+}
+
 export interface TextResourcePayload {
   path: string;
   content: string;
@@ -148,6 +154,7 @@ export interface AppStatePayload {
   promptFiles: ResourceFile[];
   terminologyFiles: ResourceFile[];
   autoDetectedGame?: DetectedGamePaths | null;
+  autoDetectedNotice?: AutoDetectedNotice | null;
   problems: UserFacingError[];
   currentTask?: TranslationTask | null;
 }

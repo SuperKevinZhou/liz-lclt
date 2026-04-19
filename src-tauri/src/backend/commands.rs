@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use tauri::Manager;
+use tauri::path::BaseDirectory;
 use tokio::sync::Mutex;
 
 use crate::backend::config::{
@@ -18,6 +20,7 @@ use crate::backend::state::AppState;
 use crate::backend::task::start_translation_task;
 
 fn resolve_workspace_root(
+    app: Option<&tauri::AppHandle>,
     state: &AppState,
     explicit: Option<String>,
 ) -> Result<PathBuf, UserFacingError> {
@@ -25,11 +28,21 @@ fn resolve_workspace_root(
         return Ok(PathBuf::from(path));
     }
 
-    state.workspace_root.clone().ok_or_else(|| {
+    if let Some(path) = &state.workspace_root {
+        return Ok(path.clone());
+    }
+
+    if let Some(app) = app {
+        if let Ok(dir) = app.path().resolve(".", BaseDirectory::Resource) {
+            return Ok(dir);
+        }
+    }
+
+    std::env::current_dir().map_err(|error| {
         UserFacingError::new(
             "Workspace Required",
-            "Select a workspace root before using this action.",
-            None,
+            "Failed to resolve the default workspace directory.",
+            Some(error.to_string()),
         )
     })
 }
@@ -46,12 +59,13 @@ pub async fn set_workspace_root(
 
 #[tauri::command]
 pub async fn load_app_state(
+    app: tauri::AppHandle,
     state: tauri::State<'_, Arc<Mutex<AppState>>>,
     workspace_root: Option<String>,
 ) -> Result<AppStatePayload, UserFacingError> {
     let root = {
         let mut guard = state.lock().await;
-        let root = resolve_workspace_root(&guard, workspace_root)?;
+        let root = resolve_workspace_root(Some(&app), &guard, workspace_root)?;
         guard.workspace_root = Some(root.clone());
         root
     };
@@ -70,7 +84,7 @@ pub async fn load_text_resource(
     payload: TextResourcePayload,
 ) -> Result<TextResourcePayload, UserFacingError> {
     let guard = state.lock().await;
-    let workspace_root = resolve_workspace_root(&guard, None)?;
+    let workspace_root = resolve_workspace_root(None, &guard, None)?;
     let relative_path = payload.path.clone();
     let path = workspace_root.join(&relative_path);
     let content = read_text_file(&path)?;
@@ -87,7 +101,7 @@ pub async fn save_config(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let paths = default_workspace_paths(workspace_root);
     save_app_config(&paths.config, &payload)
@@ -100,7 +114,7 @@ pub async fn save_models(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let paths = default_workspace_paths(workspace_root);
     persist_models(&paths.models, &payload)
@@ -113,7 +127,7 @@ pub async fn save_translation_configs(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let paths = default_workspace_paths(workspace_root);
     persist_translation_configs(&paths.translation_configs, &payload)
@@ -126,7 +140,7 @@ pub async fn save_blacklist(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let paths = default_workspace_paths(workspace_root);
     persist_blacklist(&paths.blacklist, &payload)
@@ -139,7 +153,7 @@ pub async fn save_text_resource(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let path = workspace_root.join(payload.path);
     write_text_file(&path, &payload.content)
@@ -152,7 +166,7 @@ pub async fn save_terminology(
 ) -> Result<(), UserFacingError> {
     let workspace_root = {
         let guard = state.lock().await;
-        resolve_workspace_root(&guard, None)?
+        resolve_workspace_root(None, &guard, None)?
     };
     let path = workspace_root.join(payload.path);
     write_terminology(&path, &payload.payload)
@@ -167,6 +181,7 @@ pub async fn start_translation(
     let (workspace_root, dry_run) = {
         let guard = state.lock().await;
         let root = resolve_workspace_root(
+            Some(&app),
             &guard,
             payload
                 .as_ref()

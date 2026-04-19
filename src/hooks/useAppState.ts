@@ -42,6 +42,7 @@ function defaultState(): AppStatePayload {
     promptFiles: [],
     terminologyFiles: [],
     autoDetectedGame: null,
+    autoDetectedNotice: null,
     problems: [],
     currentTask: null,
   };
@@ -52,6 +53,7 @@ export function useAppState() {
   const [isLoading, setIsLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState<string>("");
   const [activeError, setActiveError] = useState<UserFacingError | null>(null);
+  const [startupNotice, setStartupNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let disposeProgress: (() => void) | undefined;
@@ -89,6 +91,33 @@ export function useAppState() {
     };
   }, []);
 
+  useEffect(() => {
+    void (async () => {
+      setIsLoading(true);
+      try {
+        const payload = await commands.loadAppState();
+        setState(payload);
+        setActionMessage("工作区已加载。");
+        if (payload.autoDetectedNotice) {
+          const applied: string[] = [];
+          if (payload.autoDetectedNotice.inputApplied) {
+            applied.push("输入目录");
+          }
+          if (payload.autoDetectedNotice.outputApplied) {
+            applied.push("输出目录");
+          }
+          setStartupNotice(
+            `已自动识别 Limbus Company，并填入${applied.join("和")}：${payload.autoDetectedNotice.gameRoot}`,
+          );
+        }
+      } catch (error) {
+        setActiveError(error as UserFacingError);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
   const actions = useMemo(
     () => ({
       async load(workspaceRoot?: string) {
@@ -101,6 +130,20 @@ export function useAppState() {
           const payload = await commands.loadAppState(workspaceRoot);
           setState(payload);
           setActionMessage("工作区已加载。");
+          if (payload.autoDetectedNotice) {
+            const applied: string[] = [];
+            if (payload.autoDetectedNotice.inputApplied) {
+              applied.push("输入目录");
+            }
+            if (payload.autoDetectedNotice.outputApplied) {
+              applied.push("输出目录");
+            }
+            setStartupNotice(
+              `已自动识别 Limbus Company，并填入${applied.join("和")}：${payload.autoDetectedNotice.gameRoot}`,
+            );
+          } else {
+            setStartupNotice(null);
+          }
         } catch (error) {
           setActiveError(error as UserFacingError);
         } finally {
@@ -191,6 +234,9 @@ export function useAppState() {
       setError(error: UserFacingError | null) {
         setActiveError(error);
       },
+      dismissStartupNotice() {
+        setStartupNotice(null);
+      },
     }),
     [state],
   );
@@ -200,6 +246,7 @@ export function useAppState() {
     isLoading,
     actionMessage,
     activeError,
+    startupNotice,
     actions,
   };
 }

@@ -8,6 +8,7 @@ const zhCN = {
   ready: "就绪",
   readingWorkspace: "正在读取工作区配置和资源。",
   workspaceIssues: "工作区问题",
+  dismiss: "知道了",
   cannotStartTitle: "无法启动翻译",
   cannotStartMessage: "请先修复工作区配置，再启动任务。",
   problemNoWorkspace: "尚未加载工作区。",

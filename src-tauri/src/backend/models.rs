@@ -181,6 +181,7 @@ pub struct AppStatePayload {
     pub prompt_files: Vec<ResourceFile>,
     pub terminology_files: Vec<ResourceFile>,
     pub auto_detected_game: Option<DetectedGamePaths>,
+    pub auto_detected_notice: Option<AutoDetectedNotice>,
     pub problems: Vec<UserFacingError>,
     pub current_task: Option<TranslationTask>,
 }
@@ -199,6 +200,14 @@ pub struct DetectedGamePaths {
     pub game_root: String,
     pub localize_root: String,
     pub lang_root: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AutoDetectedNotice {
+    pub game_root: String,
+    pub input_applied: bool,
+    pub output_applied: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

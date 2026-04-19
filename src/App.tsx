@@ -16,7 +16,14 @@ import "./App.css";
 function App() {
   const [activeNav, setActiveNav] = useState<NavKey>("overview");
   const [workspaceInput, setWorkspaceInput] = useState("");
-  const { state, isLoading, actionMessage, activeError, actions } =
+  const {
+    state,
+    isLoading,
+    actionMessage,
+    activeError,
+    startupNotice,
+    actions,
+  } =
     useAppState();
 
   const promptOptions = useMemo(
@@ -158,6 +165,24 @@ function App() {
             <strong>{activeError.title}</strong>
             <p>{activeError.message}</p>
             {activeError.details ? <code>{activeError.details}</code> : null}
+          </section>
+        ) : null}
+
+        {startupNotice ? (
+          <section className="alert alert--success">
+            <div className="alert__row">
+              <div>
+                <strong>{t("detectedSteamInstall")}</strong>
+                <p>{startupNotice}</p>
+              </div>
+              <button
+                className="button button--ghost"
+                onClick={() => actions.dismissStartupNotice()}
+                type="button"
+              >
+                {t("dismiss")}
+              </button>
+            </div>
           </section>
         ) : null}
 
