@@ -352,8 +352,7 @@ mod tests {
 
     #[test]
     fn deserializes_original_lclt_translation_configs() {
-        let content =
-            include_str!("../../../../LimbusCompanyLLMTranslator/translation_configs.json");
+        let content = include_str!("../../tests/fixtures/original_translation_configs.json");
         let parsed: TranslationConfigs =
             serde_json::from_str(content).expect("original translation config should deserialize");
 

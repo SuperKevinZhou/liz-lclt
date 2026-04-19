@@ -1,0 +1,50 @@
+{
+  "translation_strategies": [
+    {
+      "name": "bgm_lyrics",
+      "priority": 100,
+      "file_patterns": [
+        {
+          "pattern": "Localize/zh-CN/Audio/Bgm/*.json"
+        }
+      ],
+      "model": "origin",
+      "prompt_file": "prompts/bgm_lyrics_prompt.txt"
+    },
+    {
+      "name": "story",
+      "priority": 90,
+      "file_patterns": [
+        {
+          "pattern": "Localize/zh-CN/Story/**/*.json"
+        }
+      ],
+      "model": "origin",
+      "prompt_file": "prompts/story_prompt.txt",
+      "terminology_file": "terminology/story.json"
+    },
+    {
+      "name": "ui",
+      "priority": 80,
+      "file_patterns": [
+        {
+          "pattern": "Localize/zh-CN/UI/**/*.json"
+        }
+      ],
+      "model": "origin",
+      "prompt_file": "prompts/ui_prompt.txt"
+    },
+    {
+      "name": "battle",
+      "priority": 70,
+      "file_patterns": [
+        {
+          "pattern": "Localize/zh-CN/Battle/**/*.json",
+          "extract_fields": ["title", "desc"]
+        }
+      ],
+      "model": "origin",
+      "prompt_file": "prompts/battle_prompt.txt"
+    }
+  ]
+}
