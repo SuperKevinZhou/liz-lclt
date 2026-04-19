@@ -26,7 +26,8 @@ export const commands = {
       payload: { path, content: "" },
     }),
   saveConfig: (payload: AppConfig) => invoke<void>("save_config", { payload }),
-  saveModels: (payload: ModelsConfig) => invoke<void>("save_models", { payload }),
+  saveModels: (payload: ModelsConfig) =>
+    invoke<void>("save_models", { payload }),
   saveTranslationConfigs: (payload: TranslationConfigs) =>
     invoke<void>("save_translation_configs", { payload }),
   saveBlacklist: (payload: BlacklistConfig) =>

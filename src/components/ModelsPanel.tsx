@@ -6,7 +6,11 @@ interface ModelsPanelProps {
   onSave: () => void;
 }
 
-export function ModelsPanel({ modelsConfig, onChange, onSave }: ModelsPanelProps) {
+export function ModelsPanel({
+  modelsConfig,
+  onChange,
+  onSave,
+}: ModelsPanelProps) {
   const entries = Object.entries(modelsConfig.models);
 
   return (
@@ -125,7 +129,10 @@ export function ModelsPanel({ modelsConfig, onChange, onSave }: ModelsPanelProps
                       onChange({
                         models: {
                           ...modelsConfig.models,
-                          [slotName]: { ...model, temperature: Number(event.target.value) },
+                          [slotName]: {
+                            ...model,
+                            temperature: Number(event.target.value),
+                          },
                         },
                       })
                     }
@@ -140,7 +147,10 @@ export function ModelsPanel({ modelsConfig, onChange, onSave }: ModelsPanelProps
                     onChange({
                       models: {
                         ...modelsConfig.models,
-                        [slotName]: { ...model, enableThinking: event.target.checked },
+                        [slotName]: {
+                          ...model,
+                          enableThinking: event.target.checked,
+                        },
                       },
                     })
                   }

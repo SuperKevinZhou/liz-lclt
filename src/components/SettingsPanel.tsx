@@ -17,7 +17,8 @@ const concurrencyPresets = [
   {
     label: "Small",
     value: 256,
-    description: "High enough for most providers without flooding the desktop runtime.",
+    description:
+      "High enough for most providers without flooding the desktop runtime.",
   },
   {
     label: "Balanced",
@@ -27,7 +28,8 @@ const concurrencyPresets = [
   {
     label: "Extreme",
     value: 32768,
-    description: "Maximum Rust/Tokio pressure; provider/network limits will dominate.",
+    description:
+      "Maximum Rust/Tokio pressure; provider/network limits will dominate.",
   },
 ];
 
@@ -191,8 +193,8 @@ export function SettingsPanel({
             <p className="eyebrow">Detected Steam Install</p>
             <strong>{autoDetectedGame.gameRoot}</strong>
             <p className="muted">
-              Input and output paths are inferred from the original project layout under the Steam
-              library.
+              Input and output paths are inferred from the original project
+              layout under the Steam library.
             </p>
           </div>
         ) : (
@@ -200,8 +202,9 @@ export function SettingsPanel({
             <p className="eyebrow">Steam Detection</p>
             <strong>Automatic scan did not find Limbus Company.</strong>
             <p className="muted">
-              The app looks for the Steam library root and scans `steamapps/common/Limbus Company`
-              for the original `Localize` and `Lang` folders.
+              The app looks for the Steam library root and scans
+              `steamapps/common/Limbus Company` for the original `Localize` and
+              `Lang` folders.
             </p>
           </div>
         )}

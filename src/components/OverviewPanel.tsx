@@ -23,18 +23,30 @@ export function OverviewPanel({
           <p className="eyebrow">Workspace</p>
           <h2>{state.workspaceRoot || "No workspace selected yet"}</h2>
           <p className="muted">
-            Load an existing LCLT workspace to edit the original config files in place and run the
-            Rust/Tauri pipeline from one window.
+            Load an existing LCLT workspace to edit the original config files in
+            place and run the Rust/Tauri pipeline from one window.
           </p>
         </div>
         <div className="hero-card__actions">
-          <button className="button button--secondary" onClick={onLoadWorkspace} type="button">
+          <button
+            className="button button--secondary"
+            onClick={onLoadWorkspace}
+            type="button"
+          >
             Choose Workspace
           </button>
-          <button className="button" onClick={() => onStartTranslation(false)} type="button">
+          <button
+            className="button"
+            onClick={() => onStartTranslation(false)}
+            type="button"
+          >
             Start Translation
           </button>
-          <button className="button button--ghost" onClick={() => onStartTranslation(true)} type="button">
+          <button
+            className="button button--ghost"
+            onClick={() => onStartTranslation(true)}
+            type="button"
+          >
             Dry Run
           </button>
         </div>
@@ -43,11 +55,15 @@ export function OverviewPanel({
       <div className="stat-grid">
         <article className="stat-card">
           <span>Origin Language</span>
-          <strong>{state.currentConfig.translationSettings.originLanguage || "n/a"}</strong>
+          <strong>
+            {state.currentConfig.translationSettings.originLanguage || "n/a"}
+          </strong>
         </article>
         <article className="stat-card">
           <span>Target Directory</span>
-          <strong>{state.currentConfig.translationSettings.targetDirection || "n/a"}</strong>
+          <strong>
+            {state.currentConfig.translationSettings.targetDirection || "n/a"}
+          </strong>
         </article>
         <article className="stat-card">
           <span>Model Slots</span>
@@ -55,7 +71,9 @@ export function OverviewPanel({
         </article>
         <article className="stat-card">
           <span>Strategies</span>
-          <strong>{state.translationConfigs.translationStrategies.length}</strong>
+          <strong>
+            {state.translationConfigs.translationStrategies.length}
+          </strong>
         </article>
       </div>
 
@@ -67,7 +85,11 @@ export function OverviewPanel({
               <h3>{task?.status ?? "idle"}</h3>
             </div>
             {task?.status === "running" || task?.status === "cancelling" ? (
-              <button className="button button--danger" onClick={onCancel} type="button">
+              <button
+                className="button button--danger"
+                onClick={onCancel}
+                type="button"
+              >
                 Cancel
               </button>
             ) : null}
@@ -85,7 +107,8 @@ export function OverviewPanel({
             <div>
               <span>Completed Batches</span>
               <strong>
-                {progress?.completedBatches ?? 0} / {progress?.totalBatches ?? 0}
+                {progress?.completedBatches ?? 0} /{" "}
+                {progress?.totalBatches ?? 0}
               </strong>
             </div>
             <div>
@@ -98,9 +121,12 @@ export function OverviewPanel({
             <div className="summary-card">
               <p className="eyebrow">Task Summary</p>
               <h4>
-                {task.summary.translatedFiles} files, {task.summary.translatedEntries} entries
+                {task.summary.translatedFiles} files,{" "}
+                {task.summary.translatedEntries} entries
               </h4>
-              <p className="muted">{task.summary.outputDirectory ?? "No output path"}</p>
+              <p className="muted">
+                {task.summary.outputDirectory ?? "No output path"}
+              </p>
             </div>
           ) : null}
         </section>
@@ -115,7 +141,10 @@ export function OverviewPanel({
           <div className="log-list">
             {task?.logs.length ? (
               task.logs.map((entry, index) => (
-                <div key={`${entry.timestampMs}-${index}`} className={`log-entry log-entry--${entry.level}`}>
+                <div
+                  key={`${entry.timestampMs}-${index}`}
+                  className={`log-entry log-entry--${entry.level}`}
+                >
                   <span>{entry.level}</span>
                   <p>{entry.message}</p>
                 </div>

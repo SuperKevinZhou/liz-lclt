@@ -105,7 +105,10 @@ pub fn apply_terminology(text: &str, terminology: &BTreeMap<String, String>) -> 
         .to_string()
 }
 
-pub fn plan_batches(units: &[TranslationUnit], max_chars_per_batch: usize) -> Vec<TranslationBatch> {
+pub fn plan_batches(
+    units: &[TranslationUnit],
+    max_chars_per_batch: usize,
+) -> Vec<TranslationBatch> {
     let mut groups: HashMap<TranslationGroupKey, Vec<&TranslationUnit>> = HashMap::new();
     for unit in units {
         let key = TranslationGroupKey {

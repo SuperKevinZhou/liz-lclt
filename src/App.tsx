@@ -14,10 +14,16 @@ import "./App.css";
 
 function App() {
   const [activeNav, setActiveNav] = useState<NavKey>("overview");
-  const [workspaceInput, setWorkspaceInput] = useState("D:/zzh/Code/LCLT-neo/LimbusCompanyLLMTranslator");
-  const { state, isLoading, actionMessage, activeError, actions } = useAppState();
+  const [workspaceInput, setWorkspaceInput] = useState(
+    "D:/zzh/Code/LCLT-neo/LimbusCompanyLLMTranslator",
+  );
+  const { state, isLoading, actionMessage, activeError, actions } =
+    useAppState();
 
-  const promptOptions = useMemo(() => state.promptFiles.map((file) => file.path), [state.promptFiles]);
+  const promptOptions = useMemo(
+    () => state.promptFiles.map((file) => file.path),
+    [state.promptFiles],
+  );
   const terminologyOptions = useMemo(
     () => state.terminologyFiles.map((file) => file.path),
     [state.terminologyFiles],
@@ -54,13 +60,16 @@ function App() {
       problems.push("No translation strategies are configured.");
     }
 
-    const badStrategies = state.translationConfigs.translationStrategies.filter((strategy) => {
-      const hasModel = Boolean(state.modelsConfig.models[strategy.model]);
-      const hasPrompt = promptOptions.includes(strategy.promptFile);
-      const hasTerminology =
-        !strategy.terminologyFile || terminologyOptions.includes(strategy.terminologyFile);
-      return !(hasModel && hasPrompt && hasTerminology);
-    });
+    const badStrategies = state.translationConfigs.translationStrategies.filter(
+      (strategy) => {
+        const hasModel = Boolean(state.modelsConfig.models[strategy.model]);
+        const hasPrompt = promptOptions.includes(strategy.promptFile);
+        const hasTerminology =
+          !strategy.terminologyFile ||
+          terminologyOptions.includes(strategy.terminologyFile);
+        return !(hasModel && hasPrompt && hasTerminology);
+      },
+    );
     if (badStrategies.length) {
       problems.push(
         `Invalid strategy references: ${badStrategies.map((strategy) => strategy.name).join(", ")}`,
@@ -113,10 +122,18 @@ function App() {
               onChange={(event) => setWorkspaceInput(event.target.value)}
               placeholder="Workspace root"
             />
-            <button className="button button--secondary" onClick={() => void actions.load(workspaceInput)} type="button">
+            <button
+              className="button button--secondary"
+              onClick={() => void actions.load(workspaceInput)}
+              type="button"
+            >
               Load
             </button>
-            <button className="button button--secondary" onClick={() => void chooseWorkspace()} type="button">
+            <button
+              className="button button--secondary"
+              onClick={() => void chooseWorkspace()}
+              type="button"
+            >
               Pick Folder
             </button>
             <button
@@ -157,7 +174,11 @@ function App() {
         {(isLoading || actionMessage) && (
           <section className="alert alert--info">
             <strong>{isLoading ? "Loading..." : "Ready"}</strong>
-            <p>{isLoading ? "Reading workspace files and resources." : actionMessage}</p>
+            <p>
+              {isLoading
+                ? "Reading workspace files and resources."
+                : actionMessage}
+            </p>
           </section>
         )}
 
@@ -165,7 +186,9 @@ function App() {
           <OverviewPanel
             state={state}
             onLoadWorkspace={() => void chooseWorkspace()}
-            onStartTranslation={(dryRun) => void startTranslationWithGuards(dryRun)}
+            onStartTranslation={(dryRun) =>
+              void startTranslationWithGuards(dryRun)
+            }
             onCancel={() => void actions.cancelTranslation()}
           />
         ) : null}

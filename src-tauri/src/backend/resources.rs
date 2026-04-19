@@ -9,7 +9,8 @@ pub fn read_text_file(path: &Path) -> Result<String, UserFacingError> {
 
 pub fn write_text_file(path: &Path, content: &str) -> Result<(), UserFacingError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
+        fs::create_dir_all(parent)
+            .map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
     }
     fs::write(path, content).map_err(|error| UserFacingError::io("Write", path, &error))
 }
@@ -19,7 +20,10 @@ pub fn read_terminology(path: &Path) -> Result<TerminologyDictionary, UserFacing
     serde_json::from_str(&content).map_err(|error| UserFacingError::invalid_json(path, error))
 }
 
-pub fn write_terminology(path: &Path, payload: &TerminologyDictionary) -> Result<(), UserFacingError> {
+pub fn write_terminology(
+    path: &Path,
+    payload: &TerminologyDictionary,
+) -> Result<(), UserFacingError> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)
             .map_err(|error| UserFacingError::io("Create directory", parent, &error))?;

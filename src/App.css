@@ -1,8 +1,16 @@
 :root {
   color: #e7ded1;
   background:
-    radial-gradient(circle at top left, rgba(219, 168, 83, 0.16), transparent 28%),
-    radial-gradient(circle at top right, rgba(113, 45, 26, 0.24), transparent 34%),
+    radial-gradient(
+      circle at top left,
+      rgba(219, 168, 83, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(113, 45, 26, 0.24),
+      transparent 34%
+    ),
     linear-gradient(135deg, #17120f 0%, #0f0b09 44%, #1b1512 100%);
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
 }
@@ -43,7 +51,11 @@ button {
 .sidebar {
   border-right: 1px solid rgba(231, 222, 209, 0.08);
   padding: 28px 20px;
-  background: linear-gradient(180deg, rgba(28, 21, 18, 0.92), rgba(14, 11, 10, 0.96));
+  background: linear-gradient(
+    180deg,
+    rgba(28, 21, 18, 0.92),
+    rgba(14, 11, 10, 0.96)
+  );
 }
 
 .brand {
@@ -96,7 +108,10 @@ button {
   text-align: left;
   display: grid;
   gap: 6px;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
 }
 
 .nav__item:hover,

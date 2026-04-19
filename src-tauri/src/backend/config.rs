@@ -11,13 +11,15 @@ use crate::backend::models::{
 };
 
 fn read_json_file<T: DeserializeOwned>(path: &Path) -> Result<T, UserFacingError> {
-    let content = fs::read_to_string(path).map_err(|error| UserFacingError::io("Read", path, &error))?;
+    let content =
+        fs::read_to_string(path).map_err(|error| UserFacingError::io("Read", path, &error))?;
     serde_json::from_str(&content).map_err(|error| UserFacingError::invalid_json(path, error))
 }
 
 fn write_json_file<T: Serialize>(path: &Path, value: &T) -> Result<(), UserFacingError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
+        fs::create_dir_all(parent)
+            .map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
     }
 
     let content = serde_json::to_string_pretty(value).map_err(|error| {
@@ -37,8 +39,16 @@ fn list_files_in_dir(path: &Path, extension: &str) -> Result<Vec<ResourceFile>, 
     }
 
     let mut items = vec![];
-    for entry in fs::read_dir(path).map_err(|error| UserFacingError::io("Read directory", path, &error))? {
-        let entry = entry.map_err(|error| UserFacingError::new("Directory Error", "Failed to inspect directory entry.", Some(error.to_string())))?;
+    for entry in
+        fs::read_dir(path).map_err(|error| UserFacingError::io("Read directory", path, &error))?
+    {
+        let entry = entry.map_err(|error| {
+            UserFacingError::new(
+                "Directory Error",
+                "Failed to inspect directory entry.",
+                Some(error.to_string()),
+            )
+        })?;
         let entry_path = entry.path();
         if !entry_path.is_file() {
             continue;
@@ -64,7 +74,10 @@ fn list_files_in_dir(path: &Path, extension: &str) -> Result<Vec<ResourceFile>, 
             .unwrap_or_default()
             .to_string();
 
-        items.push(ResourceFile { path: relative, label });
+        items.push(ResourceFile {
+            path: relative,
+            label,
+        });
     }
 
     items.sort_by(|left, right| left.path.cmp(&right.path));
@@ -91,7 +104,9 @@ pub fn load_models(paths: &WorkspacePaths) -> Result<ModelsConfig, UserFacingErr
     }
 }
 
-pub fn load_translation_configs(paths: &WorkspacePaths) -> Result<TranslationConfigs, UserFacingError> {
+pub fn load_translation_configs(
+    paths: &WorkspacePaths,
+) -> Result<TranslationConfigs, UserFacingError> {
     if paths.translation_configs.exists() {
         read_json_file(&paths.translation_configs)
     } else {
@@ -115,7 +130,10 @@ pub fn save_models(path: &Path, value: &ModelsConfig) -> Result<(), UserFacingEr
     write_json_file(path, value)
 }
 
-pub fn save_translation_configs(path: &Path, value: &TranslationConfigs) -> Result<(), UserFacingError> {
+pub fn save_translation_configs(
+    path: &Path,
+    value: &TranslationConfigs,
+) -> Result<(), UserFacingError> {
     write_json_file(path, value)
 }
 
@@ -192,10 +210,7 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
     }
 }
 
-fn hydrate_config_paths(
-    mut config: AppConfig,
-    detected: Option<&DetectedGamePaths>,
-) -> AppConfig {
+fn hydrate_config_paths(mut config: AppConfig, detected: Option<&DetectedGamePaths>) -> AppConfig {
     let Some(detected) = detected else {
         return config;
     };
@@ -225,7 +240,10 @@ fn detect_limbus_paths() -> Option<DetectedGamePaths> {
     let libraries = steam_library_roots(&steam_root);
 
     for library in libraries {
-        let game_root = library.join("steamapps").join("common").join("Limbus Company");
+        let game_root = library
+            .join("steamapps")
+            .join("common")
+            .join("Limbus Company");
         let localize_root = game_root
             .join("LimbusCompany_Data")
             .join("Assets")
@@ -277,7 +295,11 @@ fn steam_library_roots(steam_root: &Path) -> Vec<PathBuf> {
             continue;
         }
         let parts = trimmed.split('"').collect::<Vec<_>>();
-        let Some(raw_path) = parts.iter().rev().find(|part| !part.trim().is_empty() && !part.contains("path")) else {
+        let Some(raw_path) = parts
+            .iter()
+            .rev()
+            .find(|part| !part.trim().is_empty() && !part.contains("path"))
+        else {
             continue;
         };
         let normalized = raw_path.replace("\\\\", "\\");

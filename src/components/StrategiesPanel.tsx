@@ -72,7 +72,9 @@ export function StrategiesPanel({
                 <button
                   className="button button--ghost"
                   onClick={() => {
-                    const next = strategies.filter((_, itemIndex) => itemIndex !== index);
+                    const next = strategies.filter(
+                      (_, itemIndex) => itemIndex !== index,
+                    );
                     onChange({ translationStrategies: next });
                   }}
                   type="button"
@@ -88,7 +90,10 @@ export function StrategiesPanel({
                     value={strategy.priority}
                     onChange={(event) => {
                       const next = [...strategies];
-                      next[index] = { ...strategy, priority: Number(event.target.value) };
+                      next[index] = {
+                        ...strategy,
+                        priority: Number(event.target.value),
+                      };
                       onChange({ translationStrategies: next });
                     }}
                   />
@@ -116,7 +121,10 @@ export function StrategiesPanel({
                     value={strategy.promptFile}
                     onChange={(event) => {
                       const next = [...strategies];
-                      next[index] = { ...strategy, promptFile: event.target.value };
+                      next[index] = {
+                        ...strategy,
+                        promptFile: event.target.value,
+                      };
                       onChange({ translationStrategies: next });
                     }}
                   >
@@ -133,7 +141,10 @@ export function StrategiesPanel({
                     value={strategy.terminologyFile ?? ""}
                     onChange={(event) => {
                       const next = [...strategies];
-                      next[index] = { ...strategy, terminologyFile: event.target.value };
+                      next[index] = {
+                        ...strategy,
+                        terminologyFile: event.target.value,
+                      };
                       onChange({ translationStrategies: next });
                     }}
                   >
@@ -165,7 +176,10 @@ export function StrategiesPanel({
 
               <div className="pattern-list">
                 {strategy.filePatterns.map((pattern, patternIndex) => (
-                  <div className="pattern-row" key={`${pattern.pattern}-${patternIndex}`}>
+                  <div
+                    className="pattern-row"
+                    key={`${pattern.pattern}-${patternIndex}`}
+                  >
                     <input
                       value={pattern.pattern}
                       onChange={(event) => {
@@ -175,7 +189,10 @@ export function StrategiesPanel({
                           ...pattern,
                           pattern: event.target.value,
                         };
-                        next[index] = { ...strategy, filePatterns: nextPatterns };
+                        next[index] = {
+                          ...strategy,
+                          filePatterns: nextPatterns,
+                        };
                         onChange({ translationStrategies: next });
                       }}
                     />
@@ -192,7 +209,10 @@ export function StrategiesPanel({
                             .map((value) => value.trim())
                             .filter(Boolean),
                         };
-                        next[index] = { ...strategy, filePatterns: nextPatterns };
+                        next[index] = {
+                          ...strategy,
+                          filePatterns: nextPatterns,
+                        };
                         onChange({ translationStrategies: next });
                       }}
                     />
@@ -203,7 +223,10 @@ export function StrategiesPanel({
                         const nextPatterns = strategy.filePatterns.filter(
                           (_, itemIndex) => itemIndex !== patternIndex,
                         );
-                        next[index] = { ...strategy, filePatterns: nextPatterns };
+                        next[index] = {
+                          ...strategy,
+                          filePatterns: nextPatterns,
+                        };
                         onChange({ translationStrategies: next });
                       }}
                       type="button"
@@ -218,7 +241,10 @@ export function StrategiesPanel({
                     const next = [...strategies];
                     next[index] = {
                       ...strategy,
-                      filePatterns: [...strategy.filePatterns, { pattern: "*" }],
+                      filePatterns: [
+                        ...strategy.filePatterns,
+                        { pattern: "*" },
+                      ],
                     };
                     onChange({ translationStrategies: next });
                   }}

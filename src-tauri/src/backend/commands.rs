@@ -168,9 +168,14 @@ pub async fn start_translation(
         let guard = state.lock().await;
         let root = resolve_workspace_root(
             &guard,
-            payload.as_ref().and_then(|value| value.workspace_root.clone()),
+            payload
+                .as_ref()
+                .and_then(|value| value.workspace_root.clone()),
         )?;
-        let dry_run = payload.as_ref().and_then(|value| value.dry_run).unwrap_or(false);
+        let dry_run = payload
+            .as_ref()
+            .and_then(|value| value.dry_run)
+            .unwrap_or(false);
         (root, dry_run)
     };
 

@@ -70,7 +70,11 @@ pub async fn start_translation_task(
     let translation_configs = load_translation_configs(&paths)?;
     let blacklist = load_blacklist(&paths)?.blacklist;
 
-    validate_references(&paths, &translation_configs.translation_strategies, &models.models)?;
+    validate_references(
+        &paths,
+        &translation_configs.translation_strategies,
+        &models.models,
+    )?;
 
     let task_id = format!("task-{}", now_ms());
     let output_root = workspace_root
@@ -105,7 +109,14 @@ pub async fn start_translation_task(
         });
     }
 
-    push_log(&app, &state, LogLevel::Info, "Scanning source and target language directories.", Some(&log_file)).await?;
+    push_log(
+        &app,
+        &state,
+        LogLevel::Info,
+        "Scanning source and target language directories.",
+        Some(&log_file),
+    )
+    .await?;
     let input_root = workspace_root
         .join(&config.file_paths.input_direction)
         .join(&config.translation_settings.origin_language);
@@ -124,25 +135,33 @@ pub async fn start_translation_task(
     .await?;
 
     let prompt_cache = load_prompt_cache(&paths, &translation_configs.translation_strategies)?;
-    let terminology_cache = load_terminology_cache(&paths, &translation_configs.translation_strategies)?;
+    let terminology_cache =
+        load_terminology_cache(&paths, &translation_configs.translation_strategies)?;
 
     let mut all_units: Vec<TranslationUnit> = vec![];
     let mut replacements_by_file: Vec<Vec<PendingReplacement>> = vec![vec![]; deltas.len()];
     let mut translated_entries = 0usize;
 
     for (file_index, delta) in deltas.iter().enumerate() {
-        let strategies = matching_strategies(&translation_configs.translation_strategies, &delta.rel_path);
-        let Some(items) = delta.content.get("dataList").and_then(|value| value.as_array()) else {
+        let strategies =
+            matching_strategies(&translation_configs.translation_strategies, &delta.rel_path);
+        let Some(items) = delta
+            .content
+            .get("dataList")
+            .and_then(|value| value.as_array())
+        else {
             continue;
         };
 
         let mut processed_paths = BTreeSet::new();
         for (item_index, item) in items.iter().enumerate() {
             for strategy in &strategies {
-                let extract_fields = strategy
-                    .extract_fields
-                    .clone()
-                    .or_else(|| strategy.file_patterns.iter().find_map(|rule| rule.extract_fields.clone()));
+                let extract_fields = strategy.extract_fields.clone().or_else(|| {
+                    strategy
+                        .file_patterns
+                        .iter()
+                        .find_map(|rule| rule.extract_fields.clone())
+                });
                 let extracted = extract_text_recursive(
                     item,
                     &blacklist,
@@ -247,7 +266,13 @@ pub async fn start_translation_task(
         .tcp_keepalive(Some(std::time::Duration::from_secs(30)))
         .connect_timeout(std::time::Duration::from_secs(15))
         .build()
-        .map_err(|error| UserFacingError::new("HTTP Client Error", "Failed to create HTTP client.", Some(error.to_string())))?;
+        .map_err(|error| {
+            UserFacingError::new(
+                "HTTP Client Error",
+                "Failed to create HTTP client.",
+                Some(error.to_string()),
+            )
+        })?;
 
     push_log(
         &app,
@@ -412,7 +437,8 @@ pub async fn start_translation_task(
     })
     .await?;
 
-    let backup_translation_result_path = backup_dir.join(format!("translation_result_{}.json", now_ms()));
+    let backup_translation_result_path =
+        backup_dir.join(format!("translation_result_{}.json", now_ms()));
     if !dry_run {
         fs::create_dir_all(&backup_dir)
             .map_err(|error| UserFacingError::io("Create directory", &backup_dir, &error))?;
@@ -458,8 +484,9 @@ pub async fn start_translation_task(
                 Some(error.to_string()),
             )
         })?;
-        fs::write(&backup_translation_result_path, backup_content)
-            .map_err(|error| UserFacingError::io("Write", &backup_translation_result_path, &error))?;
+        fs::write(&backup_translation_result_path, backup_content).map_err(|error| {
+            UserFacingError::io("Write", &backup_translation_result_path, &error)
+        })?;
     }
 
     if fallback_batches > 0 {
@@ -613,8 +640,8 @@ fn scan_json_files(root: &Path) -> Result<HashMap<String, Value>, UserFacingErro
 
             let raw = fs::read_to_string(&path)
                 .map_err(|error| UserFacingError::io("Read", &path, &error))?;
-            let value: Value =
-                serde_json::from_str(&raw).map_err(|error| UserFacingError::invalid_json(&path, error))?;
+            let value: Value = serde_json::from_str(&raw)
+                .map_err(|error| UserFacingError::invalid_json(&path, error))?;
 
             let relative = path
                 .strip_prefix(root)
@@ -643,7 +670,10 @@ fn find_deltas(
 
     for (rel_path, origin_value) in origin_files {
         let normalized_rel_path = normalize_rel_path(rel_path);
-        let Some(origin_data) = origin_value.get("dataList").and_then(|value| value.as_array()) else {
+        let Some(origin_data) = origin_value
+            .get("dataList")
+            .and_then(|value| value.as_array())
+        else {
             continue;
         };
 
@@ -718,7 +748,10 @@ fn normalize_filename_prefix(segment: &str) -> String {
     current
 }
 
-fn matching_strategies(strategies: &[TranslationStrategy], rel_path: &str) -> Vec<TranslationStrategy> {
+fn matching_strategies(
+    strategies: &[TranslationStrategy],
+    rel_path: &str,
+) -> Vec<TranslationStrategy> {
     let mut sorted = strategies.to_vec();
     sorted.sort_by_key(|strategy| strategy.priority);
     let file_name = Path::new(rel_path)
@@ -729,7 +762,9 @@ fn matching_strategies(strategies: &[TranslationStrategy], rel_path: &str) -> Ve
     let mut matched = vec![];
     for strategy in sorted {
         for rule in &strategy.file_patterns {
-            if wildcard_matches(&rule.pattern, rel_path) || wildcard_matches(&rule.pattern, file_name) {
+            if wildcard_matches(&rule.pattern, rel_path)
+                || wildcard_matches(&rule.pattern, file_name)
+            {
                 let mut strategy = strategy.clone();
                 if strategy.extract_fields.is_none() {
                     strategy.extract_fields = rule.extract_fields.clone();
@@ -741,7 +776,10 @@ fn matching_strategies(strategies: &[TranslationStrategy], rel_path: &str) -> Ve
     }
 
     if matched.is_empty() {
-        if let Some(default) = strategies.iter().find(|strategy| strategy.name == "default") {
+        if let Some(default) = strategies
+            .iter()
+            .find(|strategy| strategy.name == "default")
+        {
             matched.push(default.clone());
         }
     }
@@ -789,7 +827,12 @@ fn extract_text_recursive(
                         text: value.as_str().unwrap_or_default().to_string(),
                     });
                 } else {
-                    items.extend(extract_text_recursive(value, blacklist, path, extract_fields));
+                    items.extend(extract_text_recursive(
+                        value,
+                        blacklist,
+                        path,
+                        extract_fields,
+                    ));
                 }
             }
         }
@@ -797,7 +840,12 @@ fn extract_text_recursive(
             for (index, value) in list.iter().enumerate() {
                 let mut path = current_path.clone();
                 path.push(PathSegment::Index(index));
-                items.extend(extract_text_recursive(value, blacklist, path, extract_fields));
+                items.extend(extract_text_recursive(
+                    value,
+                    blacklist,
+                    path,
+                    extract_fields,
+                ));
             }
         }
         Value::String(text) if extract_fields.is_none() => {
@@ -884,7 +932,8 @@ fn set_value_recursive(
 
 fn write_output_file(path: &Path, content: &Value) -> Result<(), UserFacingError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
+        fs::create_dir_all(parent)
+            .map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
     }
     let content = serde_json::to_string_pretty(content).map_err(|error| {
         UserFacingError::new(
@@ -907,11 +956,18 @@ fn copy_font_if_missing(root: &Path, output_root: &Path) -> Result<(), UserFacin
 }
 
 fn copy_dir_all(source: &Path, destination: &Path) -> Result<(), UserFacingError> {
-    fs::create_dir_all(destination).map_err(|error| UserFacingError::io("Create directory", destination, &error))?;
+    fs::create_dir_all(destination)
+        .map_err(|error| UserFacingError::io("Create directory", destination, &error))?;
 
-    for entry in fs::read_dir(source).map_err(|error| UserFacingError::io("Read directory", source, &error))? {
+    for entry in fs::read_dir(source)
+        .map_err(|error| UserFacingError::io("Read directory", source, &error))?
+    {
         let entry = entry.map_err(|error| {
-            UserFacingError::new("Directory Error", "Failed to inspect font asset.", Some(error.to_string()))
+            UserFacingError::new(
+                "Directory Error",
+                "Failed to inspect font asset.",
+                Some(error.to_string()),
+            )
         })?;
         let entry_path = entry.path();
         let target = destination.join(entry.file_name());
@@ -936,16 +992,20 @@ where
 {
     let payload = {
         let mut guard = state.lock().await;
-        let record = guard
-            .task
-            .as_mut()
-            .ok_or_else(|| UserFacingError::new("Task Missing", "No active task was found.", None))?;
+        let record = guard.task.as_mut().ok_or_else(|| {
+            UserFacingError::new("Task Missing", "No active task was found.", None)
+        })?;
         update(&mut record.task.progress);
         record.task.progress.elapsed_ms = record.started_at.elapsed().as_millis();
         record.task.clone()
     };
-    app.emit(TASK_PROGRESS_EVENT, &payload)
-        .map_err(|error| UserFacingError::new("Event Error", "Failed to emit task progress.", Some(error.to_string())))
+    app.emit(TASK_PROGRESS_EVENT, &payload).map_err(|error| {
+        UserFacingError::new(
+            "Event Error",
+            "Failed to emit task progress.",
+            Some(error.to_string()),
+        )
+    })
 }
 
 async fn push_log(
@@ -958,10 +1018,9 @@ async fn push_log(
     let message = message.into();
     let payload = {
         let mut guard = state.lock().await;
-        let record = guard
-            .task
-            .as_mut()
-            .ok_or_else(|| UserFacingError::new("Task Missing", "No active task was found.", None))?;
+        let record = guard.task.as_mut().ok_or_else(|| {
+            UserFacingError::new("Task Missing", "No active task was found.", None)
+        })?;
         let entry = TaskLogEntry {
             level: level.clone(),
             message: message.clone(),
@@ -979,15 +1038,24 @@ async fn push_log(
         append_log_file(log_path, &payload)?;
     }
 
-    app.emit(TASK_LOG_EVENT, &payload)
-        .map_err(|error| UserFacingError::new("Event Error", "Failed to emit task log.", Some(error.to_string())))
+    app.emit(TASK_LOG_EVENT, &payload).map_err(|error| {
+        UserFacingError::new(
+            "Event Error",
+            "Failed to emit task log.",
+            Some(error.to_string()),
+        )
+    })
 }
 
 fn append_log_file(path: &Path, entry: &TaskLogEntry) -> Result<(), UserFacingError> {
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
+        fs::create_dir_all(parent)
+            .map_err(|error| UserFacingError::io("Create directory", parent, &error))?;
     }
-    let line = format!("[{:>8}ms][{:?}] {}\n", entry.timestamp_ms, entry.level, entry.message);
+    let line = format!(
+        "[{:>8}ms][{:?}] {}\n",
+        entry.timestamp_ms, entry.level, entry.message
+    );
     use std::io::Write;
     let mut file = fs::OpenOptions::new()
         .create(true)
@@ -1006,22 +1074,30 @@ async fn finish_task(
 ) -> Result<(), UserFacingError> {
     let payload = {
         let mut guard = state.lock().await;
-        let record = guard
-            .task
-            .as_mut()
-            .ok_or_else(|| UserFacingError::new("Task Missing", "No active task was found.", None))?;
+        let record = guard.task.as_mut().ok_or_else(|| {
+            UserFacingError::new("Task Missing", "No active task was found.", None)
+        })?;
         record.task.status = status;
         record.task.summary = Some(summary);
         record.task.progress.elapsed_ms = record.started_at.elapsed().as_millis();
         record.task.clone()
     };
-    app.emit(TASK_FINISHED_EVENT, &payload)
-        .map_err(|error| UserFacingError::new("Event Error", "Failed to emit task completion.", Some(error.to_string())))
+    app.emit(TASK_FINISHED_EVENT, &payload).map_err(|error| {
+        UserFacingError::new(
+            "Event Error",
+            "Failed to emit task completion.",
+            Some(error.to_string()),
+        )
+    })
 }
 
 async fn is_cancelled(state: &Arc<Mutex<AppState>>) -> bool {
     let guard = state.lock().await;
-    guard.task.as_ref().map(|record| record.cancelled).unwrap_or(false)
+    guard
+        .task
+        .as_ref()
+        .map(|record| record.cancelled)
+        .unwrap_or(false)
 }
 
 fn now_ms() -> u128 {

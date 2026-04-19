@@ -29,10 +29,15 @@ export function ResourcesPanel({
   onPersistBlacklist,
   setError,
 }: ResourcesPanelProps) {
-  const [selectedPrompt, setSelectedPrompt] = useState(promptFiles[0]?.path ?? "");
-  const [selectedTerminology, setSelectedTerminology] = useState(terminologyFiles[0]?.path ?? "");
+  const [selectedPrompt, setSelectedPrompt] = useState(
+    promptFiles[0]?.path ?? "",
+  );
+  const [selectedTerminology, setSelectedTerminology] = useState(
+    terminologyFiles[0]?.path ?? "",
+  );
   const [promptText, setPromptText] = useState("");
-  const [terminology, setTerminology] = useState<TerminologyDictionary>(defaultTerminology);
+  const [terminology, setTerminology] =
+    useState<TerminologyDictionary>(defaultTerminology);
 
   useEffect(() => {
     if (!selectedPrompt && promptFiles[0]) {
@@ -85,7 +90,10 @@ export function ResourcesPanel({
               className="button"
               onClick={() =>
                 commands
-                  .saveTextResource({ path: selectedPrompt, content: promptText })
+                  .saveTextResource({
+                    path: selectedPrompt,
+                    content: promptText,
+                  })
                   .catch((error) => setError(error as UserFacingError))
               }
               type="button"
@@ -93,14 +101,21 @@ export function ResourcesPanel({
               Save Prompt
             </button>
           </div>
-          <select value={selectedPrompt} onChange={(event) => setSelectedPrompt(event.target.value)}>
+          <select
+            value={selectedPrompt}
+            onChange={(event) => setSelectedPrompt(event.target.value)}
+          >
             {promptFiles.map((file) => (
               <option key={file.path} value={file.path}>
                 {file.path}
               </option>
             ))}
           </select>
-          <textarea className="editor-textarea" value={promptText} onChange={(event) => setPromptText(event.target.value)} />
+          <textarea
+            className="editor-textarea"
+            value={promptText}
+            onChange={(event) => setPromptText(event.target.value)}
+          />
         </section>
 
         <section className="panel">
@@ -191,7 +206,11 @@ export function ResourcesPanel({
             <p className="eyebrow">Blacklist</p>
             <h3>Protected field names</h3>
           </div>
-          <button className="button" onClick={() => onPersistBlacklist()} type="button">
+          <button
+            className="button"
+            onClick={() => onPersistBlacklist()}
+            type="button"
+          >
             Save BlackList.json
           </button>
         </div>
@@ -200,7 +219,10 @@ export function ResourcesPanel({
           value={blacklistConfig.blacklist.join("\n")}
           onChange={(event) =>
             onChangeBlacklist({
-              blacklist: event.target.value.split("\n").map((value) => value.trim()).filter(Boolean),
+              blacklist: event.target.value
+                .split("\n")
+                .map((value) => value.trim())
+                .filter(Boolean),
             })
           }
         />
