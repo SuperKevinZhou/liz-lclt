@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -55,6 +57,22 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Generate release notes
+        id: release_notes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.inputs.tagName || github.ref_name }}
+        run: |
+          body="$(gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+            -f tag_name="${RELEASE_TAG}" \
+            --jq '.body')"
+          {
+            echo "body<<EOF"
+            echo "${body}"
+            echo "EOF"
+          } >> "${GITHUB_OUTPUT}"
+
       - name: Build and publish Tauri release
         uses: tauri-apps/tauri-action@v0
         env:
@@ -62,7 +80,7 @@ jobs:
         with:
           tagName: ${{ github.event.inputs.tagName || github.ref_name }}
           releaseName: "liz-lclt ${{ github.event.inputs.tagName || github.ref_name }}"
-          releaseBody: "Automated liz-lclt desktop release."
+          releaseBody: ${{ steps.release_notes.outputs.body }}
           releaseDraft: false
           prerelease: false
           args: --ci
