@@ -99,16 +99,20 @@ impl Default for ModelsConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModelProfile {
+    #[serde(alias = "api_key")]
     pub api_key: String,
+    #[serde(alias = "base_url")]
     pub base_url: String,
     pub model: String,
     pub temperature: f64,
+    #[serde(alias = "enable_thinking")]
     pub enable_thinking: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TranslationConfigs {
+    #[serde(alias = "translation_strategies")]
     pub translation_strategies: Vec<TranslationStrategy>,
 }
 
@@ -126,12 +130,16 @@ pub struct TranslationStrategy {
     pub name: String,
     pub priority: i64,
     #[serde(default)]
+    #[serde(alias = "file_patterns")]
     pub file_patterns: Vec<FilePatternRule>,
     pub model: String,
+    #[serde(alias = "prompt_file")]
     pub prompt_file: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "terminology_file")]
     pub terminology_file: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "extract_fields")]
     pub extract_fields: Option<Vec<String>>,
 }
 
@@ -140,6 +148,7 @@ pub struct TranslationStrategy {
 pub struct FilePatternRule {
     pub pattern: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "extract_fields")]
     pub extract_fields: Option<Vec<String>>,
 }
 
@@ -334,5 +343,29 @@ impl WorkspacePaths {
             prompts_dir: root.join("prompts"),
             terminology_dir: root.join("terminology"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TranslationConfigs;
+
+    #[test]
+    fn deserializes_original_lclt_translation_configs() {
+        let content =
+            include_str!("../../../../LimbusCompanyLLMTranslator/translation_configs.json");
+        let parsed: TranslationConfigs =
+            serde_json::from_str(content).expect("original translation config should deserialize");
+
+        assert_eq!(parsed.translation_strategies.len(), 4);
+        assert_eq!(parsed.translation_strategies[0].name, "bgm_lyrics");
+        assert_eq!(
+            parsed.translation_strategies[0].prompt_file,
+            "prompts/bgm_lyrics_prompt.txt"
+        );
+        assert_eq!(
+            parsed.translation_strategies[1].terminology_file.as_deref(),
+            Some("terminology/story.json")
+        );
     }
 }

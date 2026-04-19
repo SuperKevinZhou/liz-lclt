@@ -12,6 +12,7 @@ use tokio::sync::Mutex;
 
 use crate::backend::config::{
     load_blacklist, load_models, load_or_default_app_config, load_translation_configs,
+    resolve_existing_resource_path,
 };
 use crate::backend::error::UserFacingError;
 use crate::backend::models::{
@@ -546,7 +547,7 @@ fn validate_references(
                 None,
             ));
         }
-        if !paths.root.join(&strategy.prompt_file).exists() {
+        if resolve_existing_resource_path(&paths.root, &strategy.prompt_file).is_none() {
             return Err(UserFacingError::new(
                 "Missing Prompt",
                 format!(
@@ -557,7 +558,7 @@ fn validate_references(
             ));
         }
         if let Some(terminology) = &strategy.terminology_file {
-            if !paths.root.join(terminology).exists() {
+            if resolve_existing_resource_path(&paths.root, terminology).is_none() {
                 return Err(UserFacingError::new(
                     "Missing Terminology",
                     format!(
@@ -582,7 +583,19 @@ fn load_prompt_cache(
         if cache.contains_key(&strategy.prompt_file) {
             continue;
         }
-        let content = read_text_file(&paths.root.join(&strategy.prompt_file))?;
+        let path = resolve_existing_resource_path(&paths.root, &strategy.prompt_file).ok_or_else(
+            || {
+                UserFacingError::new(
+                    "Missing Prompt",
+                    format!(
+                        "Strategy references missing prompt '{}'.",
+                        strategy.prompt_file
+                    ),
+                    None,
+                )
+            },
+        )?;
+        let content = read_text_file(&path)?;
         cache.insert(strategy.prompt_file.clone(), content);
     }
     Ok(cache)
@@ -600,7 +613,14 @@ fn load_terminology_cache(
         if cache.contains_key(path) {
             continue;
         }
-        let terminology = read_terminology(&paths.root.join(path))?;
+        let resolved_path = resolve_existing_resource_path(&paths.root, path).ok_or_else(|| {
+            UserFacingError::new(
+                "Missing Terminology",
+                format!("Strategy references missing terminology '{}'.", path),
+                None,
+            )
+        })?;
+        let terminology = read_terminology(&resolved_path)?;
         cache.insert(path.clone(), terminology);
     }
     Ok(cache)
