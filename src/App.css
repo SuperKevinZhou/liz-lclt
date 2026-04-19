@@ -21,7 +21,7 @@
 
 body {
   margin: 0;
-  min-width: 1280px;
+  min-width: 1100px;
   min-height: 100vh;
   background: transparent;
   color: inherit;
@@ -44,13 +44,13 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 248px 1fr;
   min-height: 100vh;
 }
 
 .sidebar {
   border-right: 1px solid rgba(231, 222, 209, 0.08);
-  padding: 28px 20px;
+  padding: 26px 18px;
   background: linear-gradient(
     180deg,
     rgba(28, 21, 18, 0.92),
@@ -62,7 +62,7 @@ button {
   display: flex;
   gap: 14px;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .brand__badge {
@@ -122,38 +122,31 @@ button {
 }
 
 .main-content {
-  padding: 28px 30px 34px;
+  padding: 24px 26px 30px;
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .topbar,
 .hero-card,
 .panel,
-.stat-card,
+.overview-strip__item,
 .alert {
   border: 1px solid rgba(231, 222, 209, 0.1);
-  background: rgba(25, 20, 17, 0.72);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+  background: rgba(24, 19, 16, 0.74);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
 .topbar {
-  padding: 20px 22px;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: end;
+  padding: 18px 20px;
+  display: grid;
+  gap: 8px;
 }
 
-.workspace-bar {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.workspace-bar input {
-  min-width: 420px;
+.topbar__copy {
+  display: grid;
+  gap: 6px;
 }
 
 .eyebrow {
@@ -230,36 +223,64 @@ button {
 
 .panel-stack {
   display: grid;
-  gap: 18px;
-}
-
-.hero-card {
-  padding: 24px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: end;
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
-.stat-card {
-  padding: 18px;
+.hero-card {
+  padding: 22px;
   display: grid;
-  gap: 10px;
+  gap: 18px;
 }
 
-.stat-card span,
+.hero-card__main {
+  display: grid;
+  gap: 14px;
+}
+
+.workspace-summary {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(231, 222, 209, 0.08);
+}
+
+.workspace-summary span,
+.overview-strip__item span,
+.readiness-item span {
+  color: rgba(231, 222, 209, 0.62);
+  font-size: 0.84rem;
+}
+
+.workspace-summary strong {
+  font-size: 1rem;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.workspace-summary--panel {
+  padding: 16px 18px;
+  border: 1px solid rgba(231, 222, 209, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.overview-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.overview-strip__item {
+  padding: 16px 18px;
+  display: grid;
+  gap: 8px;
+}
+
 .progress-list span {
   color: rgba(231, 222, 209, 0.62);
   font-size: 0.84rem;
 }
 
-.stat-card strong,
+.overview-strip__item strong,
 .progress-list strong {
   font-size: 1.2rem;
 }
@@ -267,13 +288,13 @@ button {
 .two-column {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 18px;
+  gap: 14px;
 }
 
 .panel {
-  padding: 22px;
+  padding: 20px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .panel__header,
@@ -291,10 +312,16 @@ button {
 }
 
 .progress-list > div,
-.summary-card {
+.summary-card,
+.readiness-item {
   border: 1px solid rgba(231, 222, 209, 0.08);
   background: rgba(255, 255, 255, 0.02);
   padding: 14px 16px;
+}
+
+.readiness-list {
+  display: grid;
+  gap: 12px;
 }
 
 .path-display,

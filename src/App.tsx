@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { confirm, open } from "@tauri-apps/plugin-dialog";
-import { openPath } from "@tauri-apps/plugin-opener";
 
 import { OverviewPanel } from "./components/OverviewPanel";
 import { ResourcesPanel } from "./components/ResourcesPanel";
@@ -15,7 +14,6 @@ import "./App.css";
 
 function App() {
   const [activeNav, setActiveNav] = useState<NavKey>("overview");
-  const [workspaceInput, setWorkspaceInput] = useState("");
   const {
     state,
     isLoading,
@@ -42,7 +40,6 @@ function App() {
       title: t("chooseWorkspace"),
     });
     if (typeof selection === "string") {
-      setWorkspaceInput(selection);
       await actions.load(selection);
     }
   }
@@ -122,41 +119,10 @@ function App() {
 
       <main className="main-content">
         <header className="topbar">
-          <div>
+          <div className="topbar__copy">
             <p className="eyebrow">Limbus Company LLM Translator</p>
             <h2>{t("appSubtitle")}</h2>
-          </div>
-          <div className="workspace-bar">
-            <input
-              value={workspaceInput}
-              onChange={(event) => setWorkspaceInput(event.target.value)}
-              placeholder={t("workspacePlaceholder")}
-            />
-            <button
-              className="button button--secondary"
-              onClick={() => void actions.load(workspaceInput)}
-              type="button"
-            >
-              {t("load")}
-            </button>
-            <button
-              className="button button--secondary"
-              onClick={() => void chooseWorkspace()}
-              type="button"
-            >
-              {t("pickFolder")}
-            </button>
-            <button
-              className="button button--ghost"
-              onClick={() => {
-                if (state.workspaceRoot) {
-                  void openPath(state.workspaceRoot);
-                }
-              }}
-              type="button"
-            >
-              {t("openFolder")}
-            </button>
+            <p className="muted">{t("shellDescription")}</p>
           </div>
         </header>
 
@@ -219,10 +185,12 @@ function App() {
 
         {activeNav === "settings" ? (
           <SettingsPanel
+            workspaceRoot={state.workspaceRoot}
             config={state.currentConfig}
             autoDetectedGame={state.autoDetectedGame}
             onChange={actions.setConfig}
             onSave={() => void actions.saveConfig()}
+            onChooseWorkspace={() => void chooseWorkspace()}
           />
         ) : null}
 

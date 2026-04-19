@@ -1,12 +1,16 @@
+import { openPath } from "@tauri-apps/plugin-opener";
+
 import { t } from "../lib/i18n";
 import type { AppConfig } from "../types/app";
 import type { DetectedGamePaths } from "../types/app";
 
 interface SettingsPanelProps {
+  workspaceRoot: string;
   config: AppConfig;
   autoDetectedGame?: DetectedGamePaths | null;
   onChange: (config: AppConfig) => void;
   onSave: () => void;
+  onChooseWorkspace: () => void;
 }
 
 function numberValue(value: string): number {
@@ -33,10 +37,12 @@ const concurrencyPresets = [
 ];
 
 export function SettingsPanel({
+  workspaceRoot,
   config,
   autoDetectedGame,
   onChange,
   onSave,
+  onChooseWorkspace,
 }: SettingsPanelProps) {
   const translation = config.translationSettings;
   const filePaths = config.filePaths;
@@ -44,6 +50,39 @@ export function SettingsPanel({
 
   return (
     <section className="panel-stack">
+      <div className="panel">
+        <div className="panel__header">
+          <div>
+            <p className="eyebrow">{t("workspace")}</p>
+            <h3>{t("workspaceOverride")}</h3>
+          </div>
+          <div className="button-group">
+            <button
+              className="button button--secondary"
+              onClick={onChooseWorkspace}
+              type="button"
+            >
+              {t("pickFolder")}
+            </button>
+            <button
+              className="button button--ghost"
+              onClick={() => {
+                if (workspaceRoot) {
+                  void openPath(workspaceRoot);
+                }
+              }}
+              type="button"
+            >
+              {t("openFolder")}
+            </button>
+          </div>
+        </div>
+        <div className="workspace-summary workspace-summary--panel">
+          <span>{t("currentWorkspace")}</span>
+          <strong>{workspaceRoot || t("noWorkspace")}</strong>
+        </div>
+      </div>
+
       <div className="panel">
         <div className="panel__header">
           <div>

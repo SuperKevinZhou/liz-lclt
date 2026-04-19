@@ -20,19 +20,18 @@ export function OverviewPanel({
   return (
     <section className="panel-stack">
       <div className="hero-card">
-        <div>
-          <p className="eyebrow">{t("workspace")}</p>
-          <h2>{state.workspaceRoot || t("noWorkspace")}</h2>
-          <p className="muted">{t("overviewDescription")}</p>
+        <div className="hero-card__main">
+          <div>
+            <p className="eyebrow">{t("workspace")}</p>
+            <h2>{t("readyToTranslate")}</h2>
+            <p className="muted">{t("overviewDescription")}</p>
+          </div>
+          <div className="workspace-summary">
+            <span>{t("currentWorkspace")}</span>
+            <strong>{state.workspaceRoot || t("noWorkspace")}</strong>
+          </div>
         </div>
         <div className="hero-card__actions">
-          <button
-            className="button button--secondary"
-            onClick={onLoadWorkspace}
-            type="button"
-          >
-            {t("chooseWorkspace")}
-          </button>
           <button
             className="button"
             onClick={() => onStartTranslation(false)}
@@ -47,31 +46,36 @@ export function OverviewPanel({
           >
             {t("dryRun")}
           </button>
+          <button
+            className="button button--secondary"
+            onClick={onLoadWorkspace}
+            type="button"
+          >
+            {t("chooseWorkspace")}
+          </button>
         </div>
       </div>
 
-      <div className="stat-grid">
-        <article className="stat-card">
-          <span>{t("originLanguage")}</span>
+      <div className="overview-strip">
+        <article className="overview-strip__item">
+          <span>{t("inputDirectory")}</span>
           <strong>
-            {state.currentConfig.translationSettings.originLanguage || "n/a"}
+            {state.currentConfig.filePaths.inputDirection || t("notDetected")}
           </strong>
         </article>
-        <article className="stat-card">
-          <span>{t("targetDirectory")}</span>
+        <article className="overview-strip__item">
+          <span>{t("outputDirectory")}</span>
           <strong>
-            {state.currentConfig.translationSettings.targetDirection || "n/a"}
+            {state.currentConfig.filePaths.outputDirection || t("notDetected")}
           </strong>
         </article>
-        <article className="stat-card">
+        <article className="overview-strip__item">
+          <span>{t("strategies")}</span>
+          <strong>{state.translationConfigs.translationStrategies.length}</strong>
+        </article>
+        <article className="overview-strip__item">
           <span>{t("modelSlots")}</span>
           <strong>{Object.keys(state.modelsConfig.models).length}</strong>
-        </article>
-        <article className="stat-card">
-          <span>{t("strategies")}</span>
-          <strong>
-            {state.translationConfigs.translationStrategies.length}
-          </strong>
         </article>
       </div>
 
@@ -105,8 +109,7 @@ export function OverviewPanel({
             <div>
               <span>{t("completedBatches")}</span>
               <strong>
-                {progress?.completedBatches ?? 0} /{" "}
-                {progress?.totalBatches ?? 0}
+                {progress?.completedBatches ?? 0} / {progress?.totalBatches ?? 0}
               </strong>
             </div>
             <div>
@@ -134,27 +137,58 @@ export function OverviewPanel({
         <section className="panel">
           <div className="panel__header">
             <div>
-              <p className="eyebrow">{t("runtimeLog")}</p>
-              <h3>{t("liveTaskStream")}</h3>
+              <p className="eyebrow">{t("translationReadiness")}</p>
+              <h3>{t("beforeStartChecklist")}</h3>
             </div>
           </div>
-          <div className="log-list">
-            {task?.logs.length ? (
-              task.logs.map((entry, index) => (
-                <div
-                  key={`${entry.timestampMs}-${index}`}
-                  className={`log-entry log-entry--${entry.level}`}
-                >
-                  <span>{entry.level}</span>
-                  <p>{entry.message}</p>
-                </div>
-              ))
-            ) : (
-              <p className="muted">{t("noTaskOutput")}</p>
-            )}
+          <div className="readiness-list">
+            <div className="readiness-item">
+              <span>{t("originLanguage")}</span>
+              <strong>
+                {state.currentConfig.translationSettings.originLanguage || "n/a"}
+              </strong>
+            </div>
+            <div className="readiness-item">
+              <span>{t("targetDirectory")}</span>
+              <strong>
+                {state.currentConfig.translationSettings.targetDirection || "n/a"}
+              </strong>
+            </div>
+            <div className="readiness-item">
+              <span>{t("prompts")}</span>
+              <strong>{state.promptFiles.length}</strong>
+            </div>
+            <div className="readiness-item">
+              <span>{t("terminology")}</span>
+              <strong>{state.terminologyFiles.length}</strong>
+            </div>
           </div>
         </section>
       </div>
+
+      <section className="panel">
+        <div className="panel__header">
+          <div>
+            <p className="eyebrow">{t("runtimeLog")}</p>
+            <h3>{t("liveTaskStream")}</h3>
+          </div>
+        </div>
+        <div className="log-list">
+          {task?.logs.length ? (
+            task.logs.map((entry, index) => (
+              <div
+                key={`${entry.timestampMs}-${index}`}
+                className={`log-entry log-entry--${entry.level}`}
+              >
+                <span>{entry.level}</span>
+                <p>{entry.message}</p>
+              </div>
+            ))
+          ) : (
+            <p className="muted">{t("noTaskOutput")}</p>
+          )}
+        </div>
+      </section>
     </section>
   );
 }

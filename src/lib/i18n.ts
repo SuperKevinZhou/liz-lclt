@@ -1,5 +1,6 @@
 const zhCN = {
   appSubtitle: "Rust 核心、Tauri 外壳、兼容优先的翻译工作台",
+  shellDescription: "直接围绕翻译配置、资源和任务状态工作，而不是维护一个复杂 dashboard。",
   workspacePlaceholder: "工作区目录",
   load: "加载",
   pickFolder: "选择文件夹",
@@ -37,8 +38,10 @@ const zhCN = {
   workspace: "工作区",
   noWorkspace: "尚未选择工作区",
   overviewDescription:
-    "加载现有 LCLT 工作区，在一个窗口中编辑原始配置文件并运行 Rust/Tauri 翻译流水线。",
+    "当前窗口只保留运行翻译需要的信息：目录、策略、模型和任务状态。",
   chooseWorkspace: "选择工作区",
+  currentWorkspace: "当前工作区",
+  readyToTranslate: "准备开始翻译",
   startTranslation: "开始翻译",
   dryRun: "试运行",
   originLanguage: "原始语言",
@@ -57,6 +60,9 @@ const zhCN = {
   liveTaskStream: "实时任务流",
   noTaskOutput: "暂无任务输出。",
   baseSettings: "基础设置",
+  workspaceOverride: "工作区覆盖",
+  translationReadiness: "翻译准备度",
+  beforeStartChecklist: "启动前检查",
   translationConfiguration: "翻译配置",
   saveConfig: "保存 config.json",
   maxWorkers: "最大并发数",
