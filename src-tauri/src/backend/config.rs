@@ -128,6 +128,18 @@ pub fn resolve_resource_path_for_write(workspace_root: &Path, relative_path: &st
         .unwrap_or_else(|| workspace_root.join(relative_path))
 }
 
+pub fn strip_windows_extended_prefix(value: &str) -> String {
+    if let Some(stripped) = value.strip_prefix(r"\\?\UNC\") {
+        return format!(r"\\{stripped}");
+    }
+
+    value.strip_prefix(r"\\?\").unwrap_or(value).to_string()
+}
+
+pub fn display_path(path: &Path) -> String {
+    strip_windows_extended_prefix(&path.to_string_lossy())
+}
+
 pub fn default_workspace_paths(root: PathBuf) -> WorkspacePaths {
     WorkspacePaths::from_root(root, &AppConfig::default())
 }
@@ -275,7 +287,7 @@ pub fn load_payload(root: PathBuf) -> AppStatePayload {
     };
 
     AppStatePayload {
-        workspace_root: root.to_string_lossy().to_string(),
+        workspace_root: display_path(&root),
         current_config,
         models_config,
         translation_configs,
@@ -349,10 +361,10 @@ fn detect_limbus_paths() -> Option<DetectedGamePaths> {
 
         if localize_root.exists() && lang_root.exists() {
             return Some(DetectedGamePaths {
-                steam_library_root: library.to_string_lossy().to_string(),
-                game_root: game_root.to_string_lossy().to_string(),
-                localize_root: localize_root.to_string_lossy().to_string(),
-                lang_root: lang_root.to_string_lossy().to_string(),
+                steam_library_root: display_path(&library),
+                game_root: display_path(&game_root),
+                localize_root: display_path(&localize_root),
+                lang_root: display_path(&lang_root),
             });
         }
     }

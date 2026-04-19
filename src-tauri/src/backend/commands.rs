@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -6,9 +7,10 @@ use tauri::Manager;
 use tokio::sync::Mutex;
 
 use crate::backend::config::{
-    default_workspace_paths, load_payload, resolve_existing_resource_path,
+    default_workspace_paths, display_path, load_payload, resolve_existing_resource_path,
     resolve_resource_path_for_write, save_app_config, save_blacklist as persist_blacklist,
     save_models as persist_models, save_translation_configs as persist_translation_configs,
+    strip_windows_extended_prefix,
 };
 use crate::backend::error::UserFacingError;
 use crate::backend::models::{
@@ -26,7 +28,7 @@ fn resolve_workspace_root(
     explicit: Option<String>,
 ) -> Result<PathBuf, UserFacingError> {
     if let Some(path) = explicit {
-        return Ok(PathBuf::from(path));
+        return Ok(PathBuf::from(strip_windows_extended_prefix(&path)));
     }
 
     if let Some(path) = &state.workspace_root {
@@ -34,7 +36,9 @@ fn resolve_workspace_root(
     }
 
     if let Some(app) = app {
-        if let Ok(dir) = app.path().resolve(".", BaseDirectory::Resource) {
+        if let Ok(dir) = app.path().resolve("workspace", BaseDirectory::AppLocalData) {
+            fs::create_dir_all(&dir)
+                .map_err(|error| UserFacingError::io("Create directory", &dir, &error))?;
             return Ok(dir);
         }
     }
@@ -54,8 +58,9 @@ pub async fn set_workspace_root(
     payload: WorkspaceSelection,
 ) -> Result<String, UserFacingError> {
     let mut guard = state.lock().await;
-    guard.workspace_root = Some(PathBuf::from(&payload.workspace_root));
-    Ok(payload.workspace_root)
+    let workspace_root = PathBuf::from(strip_windows_extended_prefix(&payload.workspace_root));
+    guard.workspace_root = Some(workspace_root.clone());
+    Ok(display_path(&workspace_root))
 }
 
 #[tauri::command]
