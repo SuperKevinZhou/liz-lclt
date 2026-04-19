@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n";
 import type { AppConfig } from "../types/app";
 import type { DetectedGamePaths } from "../types/app";
 
@@ -17,19 +18,17 @@ const concurrencyPresets = [
   {
     label: "Small",
     value: 256,
-    description:
-      "High enough for most providers without flooding the desktop runtime.",
+    description: t("presetSmall"),
   },
   {
     label: "Balanced",
     value: 2048,
-    description: "Aggressive async throughput for large translation runs.",
+    description: t("presetBalanced"),
   },
   {
     label: "Extreme",
     value: 32768,
-    description:
-      "Maximum Rust/Tokio pressure; provider/network limits will dominate.",
+    description: t("presetExtreme"),
   },
 ];
 
@@ -48,17 +47,17 @@ export function SettingsPanel({
       <div className="panel">
         <div className="panel__header">
           <div>
-            <p className="eyebrow">Base Settings</p>
-            <h3>Translation configuration</h3>
+            <p className="eyebrow">{t("baseSettings")}</p>
+            <h3>{t("translationConfiguration")}</h3>
           </div>
           <button className="button" onClick={onSave} type="button">
-            Save config.json
+            {t("saveConfig")}
           </button>
         </div>
 
         <div className="form-grid">
           <label>
-            <span>Origin Language</span>
+            <span>{t("originLanguage")}</span>
             <input
               value={translation.originLanguage}
               onChange={(event) =>
@@ -73,7 +72,7 @@ export function SettingsPanel({
             />
           </label>
           <label>
-            <span>Target Directory</span>
+            <span>{t("targetDirectory")}</span>
             <input
               value={translation.targetDirection}
               onChange={(event) =>
@@ -88,7 +87,7 @@ export function SettingsPanel({
             />
           </label>
           <label>
-            <span>Max Workers</span>
+            <span>{t("maxWorkers")}</span>
             <input
               type="number"
               value={translation.maxWorkers}
@@ -124,14 +123,19 @@ export function SettingsPanel({
                 type="button"
               >
                 <strong>
-                  {preset.label} / {preset.value.toLocaleString()}
+                  {preset.label === "Small"
+                    ? t("small")
+                    : preset.label === "Balanced"
+                      ? t("balanced")
+                      : t("extreme")}{" "}
+                  / {preset.value.toLocaleString()}
                 </strong>
                 <span>{preset.description}</span>
               </button>
             ))}
           </div>
           <label>
-            <span>Max Chars Per Batch</span>
+            <span>{t("maxCharsPerBatch")}</span>
             <input
               type="number"
               value={translation.maxCharsPerBatch}
@@ -147,7 +151,7 @@ export function SettingsPanel({
             />
           </label>
           <label>
-            <span>Max Retries</span>
+            <span>{t("maxRetries")}</span>
             <input
               type="number"
               value={translation.maxRetries}
@@ -163,7 +167,7 @@ export function SettingsPanel({
             />
           </label>
           <label>
-            <span>Timeout (seconds)</span>
+            <span>{t("timeoutSeconds")}</span>
             <input
               type="number"
               value={translation.timeout}
@@ -179,33 +183,26 @@ export function SettingsPanel({
             />
           </label>
           <div className="form-grid__full path-display">
-            <span>Input Directory</span>
-            <strong>{filePaths.inputDirection || "Not detected yet"}</strong>
+            <span>{t("inputDirectory")}</span>
+            <strong>{filePaths.inputDirection || t("notDetected")}</strong>
           </div>
           <div className="form-grid__full path-display">
-            <span>Output Directory</span>
-            <strong>{filePaths.outputDirection || "Not detected yet"}</strong>
+            <span>{t("outputDirectory")}</span>
+            <strong>{filePaths.outputDirection || t("notDetected")}</strong>
           </div>
         </div>
 
         {autoDetectedGame ? (
           <div className="detected-card">
-            <p className="eyebrow">Detected Steam Install</p>
+            <p className="eyebrow">{t("detectedSteamInstall")}</p>
             <strong>{autoDetectedGame.gameRoot}</strong>
-            <p className="muted">
-              Input and output paths are inferred from the original project
-              layout under the Steam library.
-            </p>
+            <p className="muted">{t("detectedSteamDescription")}</p>
           </div>
         ) : (
           <div className="detected-card">
-            <p className="eyebrow">Steam Detection</p>
-            <strong>Automatic scan did not find Limbus Company.</strong>
-            <p className="muted">
-              The app looks for the Steam library root and scans
-              `steamapps/common/Limbus Company` for the original `Localize` and
-              `Lang` folders.
-            </p>
+            <p className="eyebrow">{t("steamDetection")}</p>
+            <strong>{t("steamNotFound")}</strong>
+            <p className="muted">{t("steamNotFoundDescription")}</p>
           </div>
         )}
 
@@ -224,7 +221,7 @@ export function SettingsPanel({
                 })
               }
             />
-            <span>Confirm before translation</span>
+            <span>{t("confirmBeforeTranslation")}</span>
           </label>
           <label className="toggle">
             <input
@@ -240,7 +237,7 @@ export function SettingsPanel({
                 })
               }
             />
-            <span>Keep backup files</span>
+            <span>{t("keepBackupFiles")}</span>
           </label>
         </div>
       </div>

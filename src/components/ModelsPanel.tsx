@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n";
 import type { ModelsConfig } from "../types/app";
 
 interface ModelsPanelProps {
@@ -18,8 +19,8 @@ export function ModelsPanel({
       <div className="panel">
         <div className="panel__header">
           <div>
-            <p className="eyebrow">Models</p>
-            <h3>Model slot definitions</h3>
+            <p className="eyebrow">{t("models")}</p>
+            <h3>{t("modelSlotDefinitions")}</h3>
           </div>
           <div className="button-group">
             <button
@@ -40,10 +41,10 @@ export function ModelsPanel({
               }
               type="button"
             >
-              Add Slot
+              {t("addSlot")}
             </button>
             <button className="button" onClick={onSave} type="button">
-              Save models.json
+              {t("saveModels")}
             </button>
           </div>
         </div>
@@ -72,12 +73,12 @@ export function ModelsPanel({
                   }}
                   type="button"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               </div>
               <div className="form-grid">
                 <label className="form-grid__full">
-                  <span>API Key</span>
+                  <span>{t("apiKey")}</span>
                   <input
                     type="password"
                     value={model.apiKey}
@@ -92,7 +93,7 @@ export function ModelsPanel({
                   />
                 </label>
                 <label className="form-grid__full">
-                  <span>Base URL</span>
+                  <span>{t("baseUrl")}</span>
                   <input
                     value={model.baseUrl}
                     onChange={(event) =>
@@ -106,7 +107,7 @@ export function ModelsPanel({
                   />
                 </label>
                 <label>
-                  <span>Model</span>
+                  <span>{t("model")}</span>
                   <input
                     value={model.model}
                     onChange={(event) =>
@@ -120,7 +121,7 @@ export function ModelsPanel({
                   />
                 </label>
                 <label>
-                  <span>Temperature</span>
+                  <span>{t("temperature")}</span>
                   <input
                     type="number"
                     step="0.1"
@@ -155,7 +156,7 @@ export function ModelsPanel({
                     })
                   }
                 />
-                <span>Enable thinking</span>
+                <span>{t("enableThinking")}</span>
               </label>
             </article>
           ))}

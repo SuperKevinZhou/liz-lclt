@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n";
 import type { AppStatePayload } from "../types/app";
 
 interface OverviewPanelProps {
@@ -20,12 +21,9 @@ export function OverviewPanel({
     <section className="panel-stack">
       <div className="hero-card">
         <div>
-          <p className="eyebrow">Workspace</p>
-          <h2>{state.workspaceRoot || "No workspace selected yet"}</h2>
-          <p className="muted">
-            Load an existing LCLT workspace to edit the original config files in
-            place and run the Rust/Tauri pipeline from one window.
-          </p>
+          <p className="eyebrow">{t("workspace")}</p>
+          <h2>{state.workspaceRoot || t("noWorkspace")}</h2>
+          <p className="muted">{t("overviewDescription")}</p>
         </div>
         <div className="hero-card__actions">
           <button
@@ -33,44 +31,44 @@ export function OverviewPanel({
             onClick={onLoadWorkspace}
             type="button"
           >
-            Choose Workspace
+            {t("chooseWorkspace")}
           </button>
           <button
             className="button"
             onClick={() => onStartTranslation(false)}
             type="button"
           >
-            Start Translation
+            {t("startTranslation")}
           </button>
           <button
             className="button button--ghost"
             onClick={() => onStartTranslation(true)}
             type="button"
           >
-            Dry Run
+            {t("dryRun")}
           </button>
         </div>
       </div>
 
       <div className="stat-grid">
         <article className="stat-card">
-          <span>Origin Language</span>
+          <span>{t("originLanguage")}</span>
           <strong>
             {state.currentConfig.translationSettings.originLanguage || "n/a"}
           </strong>
         </article>
         <article className="stat-card">
-          <span>Target Directory</span>
+          <span>{t("targetDirectory")}</span>
           <strong>
             {state.currentConfig.translationSettings.targetDirection || "n/a"}
           </strong>
         </article>
         <article className="stat-card">
-          <span>Model Slots</span>
+          <span>{t("modelSlots")}</span>
           <strong>{Object.keys(state.modelsConfig.models).length}</strong>
         </article>
         <article className="stat-card">
-          <span>Strategies</span>
+          <span>{t("strategies")}</span>
           <strong>
             {state.translationConfigs.translationStrategies.length}
           </strong>
@@ -81,7 +79,7 @@ export function OverviewPanel({
         <section className="panel">
           <div className="panel__header">
             <div>
-              <p className="eyebrow">Task Status</p>
+              <p className="eyebrow">{t("taskStatus")}</p>
               <h3>{task?.status ?? "idle"}</h3>
             </div>
             {task?.status === "running" || task?.status === "cancelling" ? (
@@ -90,42 +88,44 @@ export function OverviewPanel({
                 onClick={onCancel}
                 type="button"
               >
-                Cancel
+                {t("cancel")}
               </button>
             ) : null}
           </div>
 
           <div className="progress-list">
             <div>
-              <span>Scanned Files</span>
+              <span>{t("scannedFiles")}</span>
               <strong>{progress?.scannedFiles ?? 0}</strong>
             </div>
             <div>
-              <span>Pending Chars</span>
+              <span>{t("pendingChars")}</span>
               <strong>{progress?.pendingChars ?? 0}</strong>
             </div>
             <div>
-              <span>Completed Batches</span>
+              <span>{t("completedBatches")}</span>
               <strong>
                 {progress?.completedBatches ?? 0} /{" "}
                 {progress?.totalBatches ?? 0}
               </strong>
             </div>
             <div>
-              <span>Elapsed</span>
+              <span>{t("elapsed")}</span>
               <strong>{((progress?.elapsedMs ?? 0) / 1000).toFixed(1)}s</strong>
             </div>
           </div>
 
           {task?.summary ? (
             <div className="summary-card">
-              <p className="eyebrow">Task Summary</p>
+              <p className="eyebrow">{t("taskSummary")}</p>
               <h4>
-                {task.summary.translatedFiles} files,{" "}
-                {task.summary.translatedEntries} entries
+                {t("summaryCounts", {
+                  files: task.summary.translatedFiles,
+                  entries: task.summary.translatedEntries,
+                })}
               </h4>
               <p className="muted">
-                {task.summary.outputDirectory ?? "No output path"}
+                {task.summary.outputDirectory ?? t("noOutputPath")}
               </p>
             </div>
           ) : null}
@@ -134,8 +134,8 @@ export function OverviewPanel({
         <section className="panel">
           <div className="panel__header">
             <div>
-              <p className="eyebrow">Runtime Log</p>
-              <h3>Live task stream</h3>
+              <p className="eyebrow">{t("runtimeLog")}</p>
+              <h3>{t("liveTaskStream")}</h3>
             </div>
           </div>
           <div className="log-list">
@@ -150,7 +150,7 @@ export function OverviewPanel({
                 </div>
               ))
             ) : (
-              <p className="muted">No task output yet.</p>
+              <p className="muted">{t("noTaskOutput")}</p>
             )}
           </div>
         </section>

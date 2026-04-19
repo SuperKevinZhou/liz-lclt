@@ -9,6 +9,7 @@ import { Sidebar } from "./components/Sidebar";
 import { ModelsPanel } from "./components/ModelsPanel";
 import { StrategiesPanel } from "./components/StrategiesPanel";
 import { useAppState } from "./hooks/useAppState";
+import { t } from "./lib/i18n";
 import type { NavKey } from "./types/app";
 import "./App.css";
 
@@ -33,7 +34,7 @@ function App() {
     const selection = await open({
       directory: true,
       multiple: false,
-      title: "Choose LCLT workspace root",
+      title: t("chooseWorkspace"),
     });
     if (typeof selection === "string") {
       setWorkspaceInput(selection);
@@ -45,19 +46,19 @@ function App() {
     const problems: string[] = [];
     const config = state.currentConfig;
     if (!state.workspaceRoot.trim()) {
-      problems.push("No workspace root is loaded.");
+      problems.push(t("problemNoWorkspace"));
     }
     if (!config.filePaths.inputDirection.trim()) {
-      problems.push("Input directory is empty.");
+      problems.push(t("problemNoInput"));
     }
     if (!config.filePaths.outputDirection.trim()) {
-      problems.push("Output directory is empty.");
+      problems.push(t("problemNoOutput"));
     }
     if (!Object.keys(state.modelsConfig.models).length) {
-      problems.push("No model slots are configured.");
+      problems.push(t("problemNoModels"));
     }
     if (!state.translationConfigs.translationStrategies.length) {
-      problems.push("No translation strategies are configured.");
+      problems.push(t("problemNoStrategies"));
     }
 
     const badStrategies = state.translationConfigs.translationStrategies.filter(
@@ -72,14 +73,16 @@ function App() {
     );
     if (badStrategies.length) {
       problems.push(
-        `Invalid strategy references: ${badStrategies.map((strategy) => strategy.name).join(", ")}`,
+        t("problemInvalidStrategies", {
+          names: badStrategies.map((strategy) => strategy.name).join(", "),
+        }),
       );
     }
 
     if (problems.length) {
       actions.setError({
-        title: "Cannot Start Translation",
-        message: "Fix the workspace configuration before starting the task.",
+        title: t("cannotStartTitle"),
+        message: t("cannotStartMessage"),
         details: problems.join("\n"),
       });
       return;
@@ -89,13 +92,15 @@ function App() {
     if (!dryRun && config.options.confirmBeforeTranslation) {
       const accepted = await confirm(
         pendingChars > 0
-          ? `This run is about to send approximately ${pendingChars.toLocaleString()} bytes to the translation provider. Continue?`
-          : "Start translation with the current workspace and configuration?",
+          ? t("confirmTranslationWithBytes", {
+              bytes: pendingChars.toLocaleString(),
+            })
+          : t("confirmTranslationGeneric"),
         {
-          title: "Confirm Translation",
+          title: t("confirmTranslationTitle"),
           kind: "warning",
-          okLabel: "Start",
-          cancelLabel: "Cancel",
+          okLabel: t("start"),
+          cancelLabel: t("cancel"),
         },
       );
       if (!accepted) {
@@ -114,27 +119,27 @@ function App() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Limbus Company LLM Translator</p>
-            <h2>Rust core, Tauri shell, compatibility-first editing</h2>
+            <h2>{t("appSubtitle")}</h2>
           </div>
           <div className="workspace-bar">
             <input
               value={workspaceInput}
               onChange={(event) => setWorkspaceInput(event.target.value)}
-              placeholder="Workspace root"
+              placeholder={t("workspacePlaceholder")}
             />
             <button
               className="button button--secondary"
               onClick={() => void actions.load(workspaceInput)}
               type="button"
             >
-              Load
+              {t("load")}
             </button>
             <button
               className="button button--secondary"
               onClick={() => void chooseWorkspace()}
               type="button"
             >
-              Pick Folder
+              {t("pickFolder")}
             </button>
             <button
               className="button button--ghost"
@@ -145,7 +150,7 @@ function App() {
               }}
               type="button"
             >
-              Open Folder
+              {t("openFolder")}
             </button>
           </div>
         </header>
@@ -160,7 +165,7 @@ function App() {
 
         {state.problems.length ? (
           <section className="alert alert--warn">
-            <strong>Workspace issues</strong>
+            <strong>{t("workspaceIssues")}</strong>
             <ul>
               {state.problems.map((problem, index) => (
                 <li key={`${problem.title}-${index}`}>
@@ -173,12 +178,8 @@ function App() {
 
         {(isLoading || actionMessage) && (
           <section className="alert alert--info">
-            <strong>{isLoading ? "Loading..." : "Ready"}</strong>
-            <p>
-              {isLoading
-                ? "Reading workspace files and resources."
-                : actionMessage}
-            </p>
+            <strong>{isLoading ? t("loading") : t("ready")}</strong>
+            <p>{isLoading ? t("readingWorkspace") : actionMessage}</p>
           </section>
         )}
 

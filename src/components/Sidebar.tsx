@@ -1,26 +1,27 @@
+import { t } from "../lib/i18n";
 import type { NavKey } from "../types/app";
 
 const navItems: Array<{ key: NavKey; label: string; hint: string }> = [
-  { key: "overview", label: "Overview", hint: "Run and inspect task state" },
+  { key: "overview", label: t("navOverview"), hint: t("navOverviewHint") },
   {
     key: "settings",
-    label: "Base Settings",
-    hint: "Core translation and path options",
+    label: t("navSettings"),
+    hint: t("navSettingsHint"),
   },
   {
     key: "models",
-    label: "Models",
-    hint: "Slots, endpoints, and temperatures",
+    label: t("navModels"),
+    hint: t("navModelsHint"),
   },
   {
     key: "strategies",
-    label: "Strategies",
-    hint: "Pattern rules, prompt and terminology bindings",
+    label: t("navStrategies"),
+    hint: t("navStrategiesHint"),
   },
   {
     key: "resources",
-    label: "Resources",
-    hint: "Prompts, terminology, and blacklist",
+    label: t("navResources"),
+    hint: t("navResourcesHint"),
   },
 ];
 
@@ -36,7 +37,7 @@ export function Sidebar({ active, onSelect }: SidebarProps) {
         <div className="brand__badge">LCLT</div>
         <div>
           <h1>liz-lclt</h1>
-          <p>Desktop translator workbench</p>
+          <p>{t("productHint")}</p>
         </div>
       </div>
 

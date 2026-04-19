@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { commands } from "../lib/tauri";
+import { t } from "../lib/i18n";
 import type {
   BlacklistConfig,
   ResourceFile,
@@ -83,8 +84,8 @@ export function ResourcesPanel({
         <section className="panel">
           <div className="panel__header">
             <div>
-              <p className="eyebrow">Prompts</p>
-              <h3>Text editor</h3>
+              <p className="eyebrow">{t("prompts")}</p>
+              <h3>{t("textEditor")}</h3>
             </div>
             <button
               className="button"
@@ -98,7 +99,7 @@ export function ResourcesPanel({
               }
               type="button"
             >
-              Save Prompt
+              {t("savePrompt")}
             </button>
           </div>
           <select
@@ -121,8 +122,8 @@ export function ResourcesPanel({
         <section className="panel">
           <div className="panel__header">
             <div>
-              <p className="eyebrow">Terminology</p>
-              <h3>Dictionary editor</h3>
+              <p className="eyebrow">{t("terminology")}</p>
+              <h3>{t("dictionaryEditor")}</h3>
             </div>
             <button
               className="button"
@@ -133,7 +134,7 @@ export function ResourcesPanel({
               }
               type="button"
             >
-              Save Terminology
+              {t("saveTerminology")}
             </button>
           </div>
           <select
@@ -178,7 +179,7 @@ export function ResourcesPanel({
                   }}
                   type="button"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               </div>
             ))}
@@ -194,7 +195,7 @@ export function ResourcesPanel({
               }
               type="button"
             >
-              Add Term
+              {t("addTerm")}
             </button>
           </div>
         </section>
@@ -203,15 +204,15 @@ export function ResourcesPanel({
       <div className="panel">
         <div className="panel__header">
           <div>
-            <p className="eyebrow">Blacklist</p>
-            <h3>Protected field names</h3>
+            <p className="eyebrow">{t("blacklist")}</p>
+            <h3>{t("protectedFieldNames")}</h3>
           </div>
           <button
             className="button"
             onClick={() => onPersistBlacklist()}
             type="button"
           >
-            Save BlackList.json
+            {t("saveBlacklist")}
           </button>
         </div>
         <textarea

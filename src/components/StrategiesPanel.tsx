@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n";
 import type { ModelsConfig, TranslationConfigs } from "../types/app";
 
 interface StrategiesPanelProps {
@@ -24,8 +25,8 @@ export function StrategiesPanel({
       <div className="panel">
         <div className="panel__header">
           <div>
-            <p className="eyebrow">Strategies</p>
-            <h3>Pattern rules and bindings</h3>
+            <p className="eyebrow">{t("strategies")}</p>
+            <h3>{t("patternRulesAndBindings")}</h3>
           </div>
           <div className="button-group">
             <button
@@ -48,10 +49,10 @@ export function StrategiesPanel({
               }
               type="button"
             >
-              Add Strategy
+              {t("addStrategy")}
             </button>
             <button className="button" onClick={onSave} type="button">
-              Save translation_configs.json
+              {t("saveTranslationConfigs")}
             </button>
           </div>
         </div>
@@ -79,12 +80,12 @@ export function StrategiesPanel({
                   }}
                   type="button"
                 >
-                  Remove
+                  {t("remove")}
                 </button>
               </div>
               <div className="form-grid">
                 <label>
-                  <span>Priority</span>
+                  <span>{t("priority")}</span>
                   <input
                     type="number"
                     value={strategy.priority}
@@ -99,7 +100,7 @@ export function StrategiesPanel({
                   />
                 </label>
                 <label>
-                  <span>Model Slot</span>
+                  <span>{t("modelSlot")}</span>
                   <select
                     value={strategy.model}
                     onChange={(event) => {
@@ -116,7 +117,7 @@ export function StrategiesPanel({
                   </select>
                 </label>
                 <label>
-                  <span>Prompt</span>
+                  <span>{t("prompt")}</span>
                   <select
                     value={strategy.promptFile}
                     onChange={(event) => {
@@ -136,7 +137,7 @@ export function StrategiesPanel({
                   </select>
                 </label>
                 <label>
-                  <span>Terminology</span>
+                  <span>{t("terminology")}</span>
                   <select
                     value={strategy.terminologyFile ?? ""}
                     onChange={(event) => {
@@ -156,7 +157,7 @@ export function StrategiesPanel({
                   </select>
                 </label>
                 <label className="form-grid__full">
-                  <span>Extract Fields (comma separated)</span>
+                  <span>{t("extractFields")}</span>
                   <input
                     value={(strategy.extractFields ?? []).join(", ")}
                     onChange={(event) => {
@@ -197,7 +198,7 @@ export function StrategiesPanel({
                       }}
                     />
                     <input
-                      placeholder="extract fields"
+                      placeholder={t("extractFieldsPlaceholder")}
                       value={(pattern.extractFields ?? []).join(", ")}
                       onChange={(event) => {
                         const next = [...strategies];
@@ -231,7 +232,7 @@ export function StrategiesPanel({
                       }}
                       type="button"
                     >
-                      Remove
+                      {t("remove")}
                     </button>
                   </div>
                 ))}
@@ -250,7 +251,7 @@ export function StrategiesPanel({
                   }}
                   type="button"
                 >
-                  Add Pattern
+                  {t("addPattern")}
                 </button>
               </div>
             </article>
