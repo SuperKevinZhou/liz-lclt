@@ -22,6 +22,18 @@ function defaultTerminology(): TerminologyDictionary {
   return { terminology: {} };
 }
 
+function renameTerminologyKey(
+  source: Record<string, string>,
+  index: number,
+  nextKey: string,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(source).map(([key, value], entryIndex) =>
+      entryIndex === index ? [nextKey, value] : [key, value],
+    ),
+  );
+}
+
 export function ResourcesPanel({
   promptFiles,
   terminologyFiles,
@@ -148,15 +160,19 @@ export function ResourcesPanel({
             ))}
           </select>
           <div className="dictionary-list">
-            {Object.entries(terminology.terminology).map(([key, value]) => (
-              <div className="dictionary-row" key={key}>
+            {Object.entries(terminology.terminology).map(
+              ([key, value], index) => (
+                <div className="dictionary-row" key={`term-row-${index}`}>
                 <input
                   value={key}
                   onChange={(event) => {
-                    const next = { ...terminology.terminology };
-                    delete next[key];
-                    next[event.target.value] = value;
-                    setTerminology({ terminology: next });
+                    setTerminology({
+                      terminology: renameTerminologyKey(
+                        terminology.terminology,
+                        index,
+                        event.target.value,
+                      ),
+                    });
                   }}
                 />
                 <input
@@ -173,16 +189,21 @@ export function ResourcesPanel({
                 <button
                   className="button button--ghost"
                   onClick={() => {
-                    const next = { ...terminology.terminology };
-                    delete next[key];
-                    setTerminology({ terminology: next });
+                    setTerminology({
+                      terminology: Object.fromEntries(
+                        Object.entries(terminology.terminology).filter(
+                          (_, entryIndex) => entryIndex !== index,
+                        ),
+                      ),
+                    });
                   }}
                   type="button"
                 >
                   {t("remove")}
                 </button>
               </div>
-            ))}
+              ),
+            )}
             <button
               className="button button--ghost"
               onClick={() =>

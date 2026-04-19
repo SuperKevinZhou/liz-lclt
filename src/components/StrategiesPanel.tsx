@@ -59,7 +59,7 @@ export function StrategiesPanel({
 
         <div className="card-list">
           {strategies.map((strategy, index) => (
-            <article className="editor-card" key={`${strategy.name}-${index}`}>
+            <article className="editor-card" key={`strategy-row-${index}`}>
               <div className="editor-card__header">
                 <input
                   className="slot-name"
@@ -177,10 +177,7 @@ export function StrategiesPanel({
 
               <div className="pattern-list">
                 {strategy.filePatterns.map((pattern, patternIndex) => (
-                  <div
-                    className="pattern-row"
-                    key={`${pattern.pattern}-${patternIndex}`}
-                  >
+                  <div className="pattern-row" key={`pattern-row-${patternIndex}`}>
                     <input
                       value={pattern.pattern}
                       onChange={(event) => {

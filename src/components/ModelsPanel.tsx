@@ -14,6 +14,16 @@ export function ModelsPanel({
 }: ModelsPanelProps) {
   const entries = Object.entries(modelsConfig.models);
 
+  function updateEntries(
+    producer: (current: Array<[string, ModelsConfig["models"][string]]>) => Array<
+      [string, ModelsConfig["models"][string]]
+    >,
+  ) {
+    onChange({
+      models: Object.fromEntries(producer(entries)),
+    });
+  }
+
   return (
     <section className="panel-stack">
       <div className="panel">
@@ -50,26 +60,27 @@ export function ModelsPanel({
         </div>
 
         <div className="card-list">
-          {entries.map(([slotName, model]) => (
-            <article className="editor-card" key={slotName}>
+          {entries.map(([slotName, model], index) => (
+            <article className="editor-card" key={`model-row-${index}`}>
               <div className="editor-card__header">
                 <input
                   className="slot-name"
                   value={slotName}
                   onChange={(event) => {
                     const nextName = event.target.value;
-                    const nextModels = { ...modelsConfig.models };
-                    delete nextModels[slotName];
-                    nextModels[nextName] = model;
-                    onChange({ models: nextModels });
+                    updateEntries((current) =>
+                      current.map((entry, entryIndex) =>
+                        entryIndex === index ? [nextName, entry[1]] : entry,
+                      ),
+                    );
                   }}
                 />
                 <button
                   className="button button--ghost"
                   onClick={() => {
-                    const nextModels = { ...modelsConfig.models };
-                    delete nextModels[slotName];
-                    onChange({ models: nextModels });
+                    updateEntries((current) =>
+                      current.filter((_, entryIndex) => entryIndex !== index),
+                    );
                   }}
                   type="button"
                 >
